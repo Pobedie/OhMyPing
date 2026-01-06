@@ -1,8 +1,16 @@
 package com.example.ohmyping.entity
 
-data class ApplicationChannel(
-    val name: String,
-    val isEnabled: Boolean,
-    val triggerText: List<String>,
-    val vibrationPattern: VibationPattern
-)
+sealed class ApplicationChannel {
+    data class AllChannels(
+        val isEnabled: Boolean,
+        val triggerText: List<String>,
+        val vibrationPattern: VibationPattern
+    )
+
+    data class Channel(
+        val name: String,
+        val isEnabled: Boolean,
+        val triggerText: List<String>,
+        val vibrationPattern: VibationPattern
+    )
+}

@@ -1,8 +1,11 @@
 package com.example.ohmyping.entity
 
+import android.graphics.Bitmap
+
 data class ApplicationItem(
-    val icon: Int,
     val name: String,
+    val icon: Bitmap,
     val isEnabled: Boolean,
-    val applicationChannels: List<ApplicationChannel>
+    val namedChannels: List<ApplicationChannel.Channel>,
+    val allChannels: ApplicationChannel.AllChannels
 )
