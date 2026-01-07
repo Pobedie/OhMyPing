@@ -8,6 +8,7 @@ sealed class ApplicationChannel {
     )
 
     data class Channel(
+        val id: String,
         val name: String,
         val isEnabled: Boolean,
         val triggerText: List<String>,
