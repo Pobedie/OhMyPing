@@ -22,9 +22,13 @@
         android:theme="@style/Theme.OhMyPing">
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.OhMyPing">
+            android:theme="@style/Theme.OhMyPing"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

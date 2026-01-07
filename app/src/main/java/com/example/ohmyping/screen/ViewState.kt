@@ -8,6 +8,7 @@ data class ViewState(
     val notificationListenerEnabled: Boolean = true,
     val userApps: List<UserApplication> = emptyList(),
     val filteredUserApps: List<UserApplication> = emptyList(),
+    val selectedAppChannelId: String = ""
 ) {
     // todo listener enabling logic:
 //    no apps -> false
