@@ -1,4 +1,4 @@
-package com.example.ohmyping.entity
+package com.pobedie.ohmyping.entity
 
 sealed class ApplicationChannel {
     data class AllChannels(

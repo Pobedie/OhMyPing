@@ -1,13 +1,12 @@
-package com.example.ohmyping
+package com.pobedie.ohmyping
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.ohmyping.ui.theme.OhMyPingTheme
-import com.example.ohmyping.screen.MainScreen
-import com.example.ohmyping.service.NotificationCaptureService
+import com.pobedie.ohmyping.ui.theme.OhMyPingTheme
+import com.pobedie.ohmyping.screen.MainScreen
+import com.pobedie.ohmyping.service.NotificationCaptureService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

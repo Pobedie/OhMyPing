@@ -1,4 +1,4 @@
-package com.example.ohmyping
+package com.pobedie.ohmyping
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

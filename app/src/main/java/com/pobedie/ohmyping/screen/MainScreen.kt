@@ -1,4 +1,4 @@
-package com.example.ohmyping.screen
+package com.pobedie.ohmyping.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ohmyping.R
+import com.pobedie.ohmyping.R
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -56,10 +56,10 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.unit.DpOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ohmyping.entity.UserApplication
-import com.example.ohmyping.screen.components.AppItem
-import com.example.ohmyping.screen.components.InputField
-import com.example.ohmyping.screen.components.TopBar
+import com.pobedie.ohmyping.entity.UserApplication
+import com.pobedie.ohmyping.screen.components.AppItem
+import com.pobedie.ohmyping.screen.components.InputField
+import com.pobedie.ohmyping.screen.components.TopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)

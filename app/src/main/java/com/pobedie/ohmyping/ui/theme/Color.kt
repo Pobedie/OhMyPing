@@ -1,4 +1,4 @@
-package com.example.ohmyping.ui.theme
+package com.pobedie.ohmyping.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

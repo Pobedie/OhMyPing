@@ -1,4 +1,4 @@
-package com.example.ohmyping.screen
+package com.pobedie.ohmyping.screen
 
 import android.app.Application
 import android.content.Context
@@ -7,10 +7,10 @@ import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
-import com.example.ohmyping.entity.ApplicationChannel
-import com.example.ohmyping.entity.ApplicationItem
-import com.example.ohmyping.entity.UserApplication
-import com.example.ohmyping.entity.VibationPattern
+import com.pobedie.ohmyping.entity.ApplicationChannel
+import com.pobedie.ohmyping.entity.ApplicationItem
+import com.pobedie.ohmyping.entity.UserApplication
+import com.pobedie.ohmyping.entity.VibationPattern
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

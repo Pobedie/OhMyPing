@@ -1,4 +1,4 @@
-package com.example.ohmyping
+package com.pobedie.ohmyping
 
 import org.junit.Test
 

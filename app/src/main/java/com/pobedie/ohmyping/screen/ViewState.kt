@@ -1,7 +1,7 @@
-package com.example.ohmyping.screen
+package com.pobedie.ohmyping.screen
 
-import com.example.ohmyping.entity.ApplicationItem
-import com.example.ohmyping.entity.UserApplication
+import com.pobedie.ohmyping.entity.ApplicationItem
+import com.pobedie.ohmyping.entity.UserApplication
 
 data class ViewState(
     val applicationItems: List<ApplicationItem> = emptyList(),

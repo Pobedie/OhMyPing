@@ -1,7 +1,6 @@
-package com.example.ohmyping.screen.components
+package com.pobedie.ohmyping.screen.components
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

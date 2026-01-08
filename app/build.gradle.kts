@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ohmyping"
+    namespace = "com.pobedie.ohmyping"
     compileSdk {
         version = release(36)
     }

@@ -1,4 +1,4 @@
-package com.example.ohmyping.screen.components
+package com.pobedie.ohmyping.screen.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -54,10 +54,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
-import com.example.ohmyping.R
-import com.example.ohmyping.entity.ApplicationChannel
-import com.example.ohmyping.entity.ApplicationItem
-import com.example.ohmyping.entity.VibationPattern
+import com.pobedie.ohmyping.R
+import com.pobedie.ohmyping.entity.ApplicationChannel
+import com.pobedie.ohmyping.entity.ApplicationItem
+import com.pobedie.ohmyping.entity.VibationPattern
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)

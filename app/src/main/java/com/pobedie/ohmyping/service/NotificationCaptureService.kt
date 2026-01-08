@@ -1,4 +1,4 @@
-package com.example.ohmyping.service
+package com.pobedie.ohmyping.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -10,19 +10,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.os.VibratorManager
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
-import com.example.ohmyping.MainActivity
-import com.example.ohmyping.R
+import com.pobedie.ohmyping.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class NotificationCaptureService : NotificationListenerService() {

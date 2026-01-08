@@ -1,4 +1,4 @@
-package com.example.ohmyping.screen.components
+package com.pobedie.ohmyping.screen.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ohmyping.R
+import com.pobedie.ohmyping.R
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
