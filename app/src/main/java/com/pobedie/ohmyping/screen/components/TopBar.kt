@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,19 +53,20 @@ import com.pobedie.ohmyping.R
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TopBar(
-  listenerEnabled: Boolean,
-  onClick: () -> Unit
+    listenerEnabled: Boolean,
+    onClick: () -> Unit
 ) {
-  Box(
-    modifier = Modifier
-      .clip(RoundedCornerShape(bottomEnd = 60.dp, bottomStart = 60.dp))
-      .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.16f))
-      .border(
-        width = 1.dp,
-        color = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.3f),
-        shape = RoundedCornerShape(bottomEnd = 60.dp, bottomStart = 60.dp)
-      ),
-  ) {
+    Box(
+        modifier = Modifier
+            .absoluteOffset(y = (-1).dp) // hack to hide border at the top of the screen
+            .clip(RoundedCornerShape(bottomEnd = 60.dp, bottomStart = 60.dp))
+            .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.16f))
+            .border(
+                width = Dp.Hairline,
+                color = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(bottomEnd = 60.dp, bottomStart = 60.dp)
+            ),
+    ) {
 
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -82,24 +86,24 @@ fun TopBar(
 
         Box(
           modifier = Modifier
-            .padding(end = 4.dp)
-            .fillMaxWidth(0.5f)
+              .padding(end = 4.dp)
+              .fillMaxWidth(0.5f)
         ) {
           Box(
             modifier = Modifier
-              .aspectRatio(1f)
-              .clip(RoundedCornerShape(48.dp))
-              .background(MaterialTheme.colorScheme.inversePrimary)
-              .border(
-                4.dp,
-                MaterialTheme.colorScheme.outline,
-                RoundedCornerShape(48.dp)
-              )
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(48.dp))
+                .background(MaterialTheme.colorScheme.inversePrimary)
+                .border(
+                    4.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(48.dp)
+                )
           )
           Text(
             modifier = Modifier
-              .padding(24.dp)
-              .matchParentSize(),
+                .padding(24.dp)
+                .matchParentSize(),
             text = "OH\nMY\nPING",
             minLines = 3,
             maxLines = 3,
@@ -115,8 +119,8 @@ fun TopBar(
 
         Column(
           modifier = Modifier
-            .padding(start = 4.dp)
-            .fillMaxWidth()
+              .padding(start = 4.dp)
+              .fillMaxWidth()
         ) {
           Box(
             modifier = Modifier
@@ -137,19 +141,19 @@ fun TopBar(
             )
             Box(
               modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.tertiaryFixed)
+                  .fillMaxSize()
+                  .clip(CircleShape)
+                  .background(MaterialTheme.colorScheme.tertiary)
             )
             LoadingIndicator(
               modifier = Modifier
-                .fillMaxSize()
-                .combinedClickable(
-                  onClick = { onClick() },
-                  indication = null,
-                  interactionSource = remember { MutableInteractionSource() }
-                )
-                .rotate(if (listenerEnabled) buttonRotation else 0f)
+                  .fillMaxSize()
+                  .combinedClickable(
+                      onClick = { onClick() },
+                      indication = null,
+                      interactionSource = remember { MutableInteractionSource() }
+                  )
+                  .rotate(if (listenerEnabled) buttonRotation else 0f)
               ,
               progress = { buttonProgress.value },
               color = MaterialTheme.colorScheme.onSurface
@@ -167,15 +171,15 @@ fun TopBar(
 
     Box(
       modifier = Modifier
-        .matchParentSize()
-        .innerShadow(
-          RoundedCornerShape(bottomEnd = 60.dp, bottomStart = 60.dp),
-          shadow = Shadow(
-            radius = 36.dp,
-            offset = DpOffset(0.dp, 5.dp),
-            alpha = 0.2f
+          .matchParentSize()
+          .innerShadow(
+              RoundedCornerShape(bottomEnd = 60.dp, bottomStart = 60.dp),
+              shadow = Shadow(
+                  radius = 36.dp,
+                  offset = DpOffset(0.dp, 5.dp),
+                  alpha = 0.2f
+              )
           )
-        )
     )
   }
 }

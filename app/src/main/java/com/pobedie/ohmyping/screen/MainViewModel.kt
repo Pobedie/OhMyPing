@@ -3,10 +3,13 @@ package com.pobedie.ohmyping.screen
 import android.app.Application
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
+import androidx.lifecycle.viewModelScope
 import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
 import com.pobedie.ohmyping.entity.UserApplication
@@ -14,7 +17,9 @@ import com.pobedie.ohmyping.entity.VibationPattern
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlin.jvm.java
 
 class MainViewModel(application: Application) : AndroidViewModel(application ) {
     private val _viewState = MutableStateFlow(ViewState())
@@ -240,10 +245,62 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         }
     }
 
+    fun changeAppChannelVibration(app: ApplicationItem, channel: ApplicationChannel, vibration: VibationPattern) {
+        _viewState.update { state ->
+            if (channel is ApplicationChannel.AllChannels) {
+                state.copy(
+                    applicationItems = state.applicationItems.map { _app ->
+                        if (_app.id == app.id) {
+                            _app.copy(allChannels = _app.allChannels.copy(vibrationPattern = vibration))
+                        } else _app
+                    }
+                )
+            } else {
+                state.copy(
+                    applicationItems = state.applicationItems.map { _app ->
+                        if (_app.id == app.id) {
+                            _app.copy(
+                                namedChannels = _app.namedChannels.map { _channel ->
+                                    if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
+                                        _channel.copy(vibrationPattern = vibration)
+                                    } else _channel
+                                }
+                            )
+                        } else _app
+                    }
+                )
+            }
+        }
+
+        val vibrator = application.applicationContext.getSystemService(Vibrator::class.java)
+
+        viewModelScope.launch {
+            vibrator.vibrate(
+                VibrationEffect.createWaveform(
+                    vibration.timings, vibration.amplitudes, -1
+                )
+            )
+        }
+    }
+
     fun changeAppChannelSelection(id: String) {
         val newId = if (_viewState.value.selectedAppChannelId == id) "" else id
         _viewState.update { state ->
             state.copy(selectedAppChannelId = newId)
+        }
+    }
+
+    fun removeAppChannel(app: ApplicationItem, id: String) {
+        _viewState.update { state ->
+            state.copy(
+                applicationItems = state.applicationItems.map { _app ->
+                    if (_app.id == app.id) {
+                        val newChannels = _app.namedChannels.filter { it.id != id }
+                        _app.copy(namedChannels = newChannels)
+                    } else _app
+                },
+                selectedAppChannelId = ""
+            )
         }
     }
 

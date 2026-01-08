@@ -23,41 +23,67 @@ enum class VibationPattern(
     Bach(
         patternName = "Bach",
         timings = longArrayOf(
-
+            100, 100,
+            100, 100,
+            200, 100,
+            600, 0,
         ),
         amplitudes = intArrayOf(
-
+            200, 0,
+            230, 0,
+            255, 0,
+            200, 0,
         )
     ),
     BzzBzz(
         patternName = "Bzz Bzz",
         timings = longArrayOf(
-
+            500, 100,
+            500, 100,
         ),
         amplitudes = intArrayOf(
-
+            255, 0,
+            255, 0,
         )
     ),
     BzzBzzBzz(
         patternName = "Bzz Bzz Bzz",
         timings = longArrayOf(
-
+            500, 100,
+            500, 100,
+            500, 100,
         ),
         amplitudes = intArrayOf(
-
+            255, 0,
+            255, 0,
+            255, 0,
         )
-    );
-
-    companion object {
-        fun VibationPattern.getName(): String {
-            return this.patternName
-        }
-        fun VibationPattern.getTimings(): LongArray {
-            return this.timings
-        }
-        fun VibationPattern.getAmplitudes(): IntArray {
-            return this.amplitudes
-        }
-    }
+    ),
+    Wheeehooo(
+        patternName = "Wheee-hooo",
+        timings = longArrayOf(
+            50, 50, 50, 50, 50, 50, 100,
+            100, 50, 50, 50, 150, 100, 150
+        ),
+        amplitudes = intArrayOf(
+            10, 60, 100, 140, 180, 220, 255,
+            255, 220, 180, 140, 100, 60, 10
+            )
+    ),
+    Trrrrrrrrrr(
+        patternName = "Trrrrrrrrrrrr",
+        timings = longArrayOf(
+            50, 70, 50, 70, 50, 70, 50,
+            70, 50, 70, 50, 70, 50, 50,
+            50, 70, 50, 70, 50, 70, 50,
+            70, 50, 70, 50, 70, 50, 50,
+        ),
+        amplitudes = intArrayOf(
+            250, 0, 250, 0, 250, 0, 250,
+            0, 250, 0, 250, 0, 250, 0,
+            250, 0, 250, 0, 250, 0, 250,
+            0, 250, 0, 250, 0, 250, 0,
+        )
+    )
 }
 

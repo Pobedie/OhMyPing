@@ -6,11 +6,14 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +28,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -44,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -68,11 +75,13 @@ fun AppItem(
     onSwitchListener: () -> Unit,
     onChannelSwitched: (ApplicationChannel.NamedChannel) -> Unit,
     onAddChannel: () -> Unit,
-    onChangeChannelSelection: (String) -> Unit,
-    onChannelNameChanged: (ApplicationItem, ApplicationChannel.NamedChannel, String) -> Unit,
+    onChangeChannelSelection: (id: String) -> Unit,
+    onChannelNameChanged: (ApplicationItem, ApplicationChannel.NamedChannel, name: String) -> Unit,
     onAddTriggerText: (ApplicationChannel) -> Unit,
-    onTriggerTextChange: (ApplicationChannel, Int, String) -> Unit,
-    onRemoveTriggerText: (ApplicationChannel, Int) -> Unit
+    onTriggerTextChange: (ApplicationChannel, id: Int, text: String) -> Unit,
+    onRemoveTriggerText: (ApplicationChannel, id: Int) -> Unit,
+    onRemoveChannel: (id: String) -> Unit,
+    onVibrationPatternChanged: (ApplicationChannel, VibationPattern) -> Unit
 ) {
   Column(
     modifier = Modifier
@@ -134,32 +143,31 @@ fun AppItem(
             .fillMaxWidth()
       ) {
 
-// ALL CHANNELS SETTINGS
         AllChannels(
           channel = applicationItem.allChannels,
           onTriggerTextChange = { index, value -> onTriggerTextChange(applicationItem.allChannels, index, value)},
           onAddTriggerText = {onAddTriggerText(applicationItem.allChannels)},
           onRemoveTriggerText = {onRemoveTriggerText(applicationItem.allChannels, it)},
-          onVibrationPatternChange = {}
+          onVibrationPatternChange = {onVibrationPatternChanged(applicationItem.allChannels, it)}
         )
         HorizontalDivider()
 
-// NAMED CHANNELS SETTINGS
-        applicationItem.namedChannels.forEach { channel ->
-          NamedChannels(
-            channel = channel,
-            selectedChannelId = selectedChannelId,
-            onChannelListenerSwitch = {onChannelSwitched(channel)},
-            onChannelNameChange = {onChannelNameChanged(applicationItem, channel, it)},
-            onTriggerTextChange = { index, value -> onTriggerTextChange(channel, index, value)},
-            onAddTriggerText = {onAddTriggerText(channel)},
-            onRemoveTriggerText = {onRemoveTriggerText(channel, it)},
-            onVibrationPatternChange = {},
-            onChangeChannelSelection ={onChangeChannelSelection(it)}
-          )
-        }
+          applicationItem.namedChannels.forEach { channel ->
+              NamedChannels(
+                  channel = channel,
+                  selectedChannelId = selectedChannelId,
+                  onChannelListenerSwitch = { onChannelSwitched(channel) },
+                  onChannelNameChange = { onChannelNameChanged(applicationItem, channel, it) },
+                  onTriggerTextChange = { index, value -> onTriggerTextChange(channel, index, value) },
+                  onAddTriggerText = { onAddTriggerText(channel) },
+                  onRemoveTriggerText = { onRemoveTriggerText(channel, it) },
+                  onVibrationPatternChange = {onVibrationPatternChanged(channel, it)},
+                  onChangeChannelSelection = { onChangeChannelSelection(it) },
+                  onRemoveChannel = { onRemoveChannel(channel.id) }
+              )
+          }
 
-        Row(
+          Row(
           modifier = Modifier
               .clip(RoundedCornerShape(22.dp))
               .fillMaxWidth()
@@ -185,91 +193,92 @@ fun AppItem(
 
 @Composable
 private fun AllChannels(
-  channel: ApplicationChannel.AllChannels,
-  onTriggerTextChange: (Int, String) -> Unit,
-  onAddTriggerText: () -> Unit,
-  onRemoveTriggerText: (Int) -> Unit,
-  onVibrationPatternChange: (VibationPattern) -> Unit
+    channel: ApplicationChannel.AllChannels,
+    onTriggerTextChange: (Int, String) -> Unit,
+    onAddTriggerText: () -> Unit,
+    onRemoveTriggerText: (Int) -> Unit,
+    onVibrationPatternChange: (VibationPattern) -> Unit
 ) {
-  Spacer(Modifier.height(16.dp))
-  Text(
-    text = "All notifications:",
-    style = MaterialTheme.typography.bodyLarge,
-    color = MaterialTheme.colorScheme.onSurface,
-    fontWeight = FontWeight.Bold
-  )
-  Column(
-    Modifier.padding(start = 16.dp)
-  ) {
+    var vibrationPopupOpened by remember { mutableStateOf(false) }
+    Spacer(Modifier.height(16.dp))
     Text(
-      text = "Trigger on text",
-      color = MaterialTheme.colorScheme.onSurface,
-    )
-    Spacer(Modifier.height(8.dp))
-    Column(
-      modifier = Modifier
-          .fillMaxWidth()
-          .animateContentSize(),
-      horizontalAlignment = Alignment.End
-    ) {
-      channel.triggerText.forEachIndexed { index, triggerText ->
-        InputField(
-          inputValue = triggerText,
-          placeholder = "Text to trigger ping",
-          onInputChange = {onTriggerTextChange(index, it)},
-          onAdd = {},
-          onTrailingIconClick = {onRemoveTriggerText(index)},
-          isExpanded = true,
-        )
-        Spacer(Modifier.height(4.dp))
-      }
-      InputField(
-        inputValue = "",
-        placeholder = "",
-        onInputChange = {},
-        onAdd = {onAddTriggerText()},
-        onTrailingIconClick = {onAddTriggerText()},
-        isExpanded = false,
-      )
-    }
-
-    Spacer(Modifier.height(12.dp))
-    Row(
-      modifier = Modifier
-        .fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-      Text(
-        text ="Vibration pattern",
+        text = "All notifications:",
+        style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurface,
-      )
-      var expanded by remember { mutableStateOf(false) }
-      Spacer(Modifier.width(8.dp))
+        fontWeight = FontWeight.Bold
+    )
+    Column(
+        Modifier.padding(start = 16.dp)
+    ) {
+        Text(
+            text = "Trigger on text",
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize(),
+            horizontalAlignment = Alignment.End
+        ) {
 
-      Text(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .weight(1f)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable(onClick = { expanded = true }),
-
-        text = "Bee Hive"
-      )
-      DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false }
-      ) {
-        VibationPattern.entries.forEach { pattern ->
-          DropdownMenuItem(
-            text = { Text(pattern.patternName) },
-            onClick = { /* Handle edit! */ },
-          )
+        channel.triggerText.plus("").forEachIndexed { index, triggerText ->
+            val isAdditionItem = index == channel.triggerText.lastIndex + 1
+            InputField(
+                inputValue = triggerText,
+                placeholder = "Text to trigger ping",
+                onInputChange = { onTriggerTextChange(index, it) },
+                onAdd = { onAddTriggerText() },
+                onTrailingIconClick = { if (isAdditionItem) onAddTriggerText() else onRemoveTriggerText(index) },
+                isExpanded = !isAdditionItem,
+            )
+            Spacer(Modifier.height(4.dp))
         }
-      }
     }
-  }
-  Spacer(Modifier.height(16.dp))
+
+        Spacer(Modifier.height(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Vibration pattern",
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(Modifier.width(8.dp))
+
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .clickable(onClick = { vibrationPopupOpened = true })
+            ) {
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    text = channel.vibrationPattern.patternName
+                )
+                DropdownMenu(
+                    expanded = vibrationPopupOpened,
+                    onDismissRequest = { vibrationPopupOpened = false },
+                    shape = RoundedCornerShape(8.dp),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    VibationPattern.entries.forEach { pattern ->
+                        DropdownMenuItem(
+                            text = { Text(pattern.patternName) },
+                            onClick = { onVibrationPatternChange(pattern) },
+                        )
+                    }
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(16.dp))
 }
 
 @Composable
@@ -282,10 +291,18 @@ private fun NamedChannels(
     onAddTriggerText: () -> Unit,
     onRemoveTriggerText: (Int) -> Unit,
     onVibrationPatternChange: (VibationPattern) -> Unit,
-    onChangeChannelSelection: (String) -> Unit
+    onChangeChannelSelection: (String) -> Unit,
+    onRemoveChannel: () -> Unit
 ) {
     val channelIsSelected = selectedChannelId == channel.id
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(22.dp))
+            .clickable(onClick = {
+                onChangeChannelSelection(channel.id)
+            }),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         IconButton(
             onClick = {
                 onChangeChannelSelection(channel.id)
@@ -348,7 +365,6 @@ private fun NamedChannels(
                 ) {
                     channel.triggerText.plus("").forEachIndexed { index, triggerText ->
                         val isAdditionItem = index == channel.triggerText.lastIndex + 1
-                        println("DEBUG isAdditionItem :  ${isAdditionItem}")
                         InputField(
                             inputValue = triggerText,
                             placeholder = "Text to trigger ping",
@@ -359,14 +375,6 @@ private fun NamedChannels(
                         )
                         Spacer(Modifier.height(4.dp))
                     }
-//          InputField(
-//            inputValue = "",
-//            placeholder = "",
-//            onInputChange = {},
-//              onAdd = {onAddTriggerText()},
-//            onTrailingIconClick = {onAddTriggerText()},
-//            isExpanded = false,
-//          )
                 }
 
                 Spacer(Modifier.height(12.dp))
@@ -391,24 +399,42 @@ private fun NamedChannels(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clickable(onClick = { expanded = true }),
 
-            text = channel.vibrationPattern.patternName
+              text = channel.vibrationPattern.patternName
           )
-          DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-          ) {
-            VibationPattern.entries.forEach { pattern ->
-              DropdownMenuItem(
-                text = { Text(pattern.patternName) },
-                onClick = { /* Handle edit! */ },
-              )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                VibationPattern.entries.forEach { pattern ->
+                    DropdownMenuItem(
+                        text = { Text(pattern.patternName) },
+                        onClick = { onVibrationPatternChange(pattern) },
+                    )
+                }
             }
-          }
         }
-      }
-      Spacer(Modifier.height(8.dp))
+            }
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = { onRemoveChannel() },
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.buttonColors().copy(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.error,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Delete channel")
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "delete",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+        }
     }
-  }
   HorizontalDivider(modifier = Modifier.padding(horizontal = 36.dp))
 }
 
@@ -483,6 +509,8 @@ private fun AppItemPreview(){
             {},
             { _, _, _ -> },
             {_,_ ->},
+            {},
+            {_,_, ->}
         )
         Spacer(Modifier.height(11.dp))
         AppItem(
@@ -496,6 +524,8 @@ private fun AppItemPreview(){
             {},
             { _, _, _ -> },
             {_,_ ->},
+            {},
+            {_,_, ->}
         )
     }
 }

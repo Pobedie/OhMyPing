@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -83,14 +85,16 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .padding(top = 10.dp)
+                .absoluteOffset(y = 1.dp) // hack to hide border at the bottom of the screen
                 .fillMaxSize()
                 .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
                 .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.16f))
                 .border(
-                    width = 1.dp,
+                    width = Dp.Hairline,
                     color = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.3f),
                     shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp)
-                ),
+                )
+            ,
         ) {
             var showAppSelector by remember { mutableStateOf(false) }
             val bottomSheetState = rememberModalBottomSheetState()
@@ -117,6 +121,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         )},
                         onRemoveTriggerText = { channel, index ->
                             viewModel.removeTriggerText(applicationItem, channel, index)
+                        },
+                        onRemoveChannel = {viewModel.removeAppChannel(applicationItem, it)},
+                        onVibrationPatternChanged = { channel, vibration ->
+                            viewModel.changeAppChannelVibration(applicationItem, channel, vibration)
                         }
                     )
                     Spacer(Modifier.height(10.dp))
@@ -124,12 +132,13 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 item {
                     if (state.applicationItems.isEmpty()) {
                         Text(
-                            "1. Select an app\n" +
+                            text = "1. Select an app\n" +
                                     "2. Optionally enter chat or notification channel\n" +
                                     "3. Enter trigger words (like your name, nickname or any other word)\n" +
                                     "4. Select vibration pattern\n\n" +
                                     "Your phone will vibrate with custom vibration when app's notification " +
-                                    "contains the trigger word"
+                                    "contains the trigger word",
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(8.dp))
                     }
