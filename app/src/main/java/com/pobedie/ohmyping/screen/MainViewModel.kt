@@ -57,7 +57,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         val newListenerState = !app.isEnabled
         _viewState.update { state ->
             val appList = state.applicationItems.toMutableList().map {
-                if (it.id == app.id) {
+                if (it.packageName == app.packageName) {
                     it.copy(isEnabled = !it.isEnabled)
                 } else it
             }
@@ -92,7 +92,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         _viewState.update { state ->
             state.copy(
                 applicationItems = state.applicationItems.map {
-                    if (it.id == app.id) item else it
+                    if (it.packageName == app.packageName) item else it
                 },
                 selectedAppChannelId = channelId
             )
@@ -110,7 +110,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         )
         _viewState.update { state ->
             state.copy(applicationItems = state.applicationItems.map {
-                if (it.id == item.id) item else it
+                if (it.packageName == item.packageName) item else it
             })
         }
     }
@@ -120,7 +120,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         println("DEBUG newChannel :  ${newChannel}")
         _viewState.update { state ->
             state.copy(applicationItems = state.applicationItems.map { _app ->
-                if (_app.id == app.id){
+                if (_app.packageName == app.packageName) {
                     _app.copy(
                         namedChannels = _app.namedChannels.map { _channel ->
                             if (_channel.id == channel.id) {
@@ -143,7 +143,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             if (channel is ApplicationChannel.AllChannels) {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             val newTriggerTexts = _app.allChannels.triggerText.toMutableList()
                             newTriggerTexts.add("")
                             _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
@@ -153,7 +153,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             } else {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             _app.copy(
                                 namedChannels = _app.namedChannels.map { _channel ->
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
@@ -180,7 +180,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             if (channel is ApplicationChannel.AllChannels) {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             val newTriggerTexts = _app.allChannels.triggerText.mapIndexed { _index, _text ->
                                 if (_index == index) triggerText else _text
                             }
@@ -191,7 +191,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             } else {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             _app.copy(
                                 namedChannels = _app.namedChannels.map { _channel ->
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
@@ -218,7 +218,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             if (channel is ApplicationChannel.AllChannels) {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             val newTriggerTexts = _app.allChannels.triggerText.toMutableList()
                             newTriggerTexts.removeAt(index)
                             _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
@@ -228,7 +228,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             } else {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             _app.copy(
                                 namedChannels = _app.namedChannels.map { _channel ->
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
@@ -250,7 +250,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             if (channel is ApplicationChannel.AllChannels) {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             _app.copy(allChannels = _app.allChannels.copy(vibrationPattern = vibration))
                         } else _app
                     }
@@ -258,7 +258,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
             } else {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
-                        if (_app.id == app.id) {
+                        if (_app.packageName == app.packageName) {
                             _app.copy(
                                 namedChannels = _app.namedChannels.map { _channel ->
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
@@ -290,12 +290,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         }
     }
 
-    fun removeAppChannel(app: ApplicationItem, id: String) {
+    fun removeAppChannel(app: ApplicationItem, channelId: String) {
         _viewState.update { state ->
             state.copy(
                 applicationItems = state.applicationItems.map { _app ->
-                    if (_app.id == app.id) {
-                        val newChannels = _app.namedChannels.filter { it.id != id }
+                    if (_app.packageName == app.packageName) {
+                        val newChannels = _app.namedChannels.filter { it.id != channelId }
                         _app.copy(namedChannels = newChannels)
                     } else _app
                 },
@@ -308,8 +308,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         _viewState.update { state ->
             val appList = state.applicationItems.toMutableList()
             val appItem = ApplicationItem(
-                id = UUID.randomUUID().toString(),
                 name = app.name,
+                packageName = app.packageName,
                 icon = app.icon,
                 isEnabled = true,
 //                namedChannels = emptyList(),
@@ -370,6 +370,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         return sortedPackages.mapNotNull {
             UserApplication(
                 name = packageManager.getApplicationLabel(it.applicationInfo!!).toString(),
+                packageName = it.packageName,
                 icon = packageManager.getApplicationIcon(it.applicationInfo!!).toBitmap(),
             )
         }

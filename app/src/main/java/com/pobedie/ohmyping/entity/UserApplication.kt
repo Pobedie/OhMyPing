@@ -5,5 +5,6 @@ import android.graphics.Bitmap
 
 data class UserApplication(
     val name: String,
+    val packageName: String,
     val icon: Bitmap
 )

@@ -441,39 +441,39 @@ private fun NamedChannels(
 
 @Preview
 @Composable
-private fun AppItemPreview(){
-  val applicationItem1 = ApplicationItem(
-    id = UUID.randomUUID().toString(),
-    icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
-    name = "Telegram",
-    isEnabled = true,
-    namedChannels = listOf(
-      ApplicationChannel.NamedChannel(
-        id = UUID.randomUUID().toString(),
-        name = "Dog",
-        isEnabled = false,
-        triggerText = listOf("Cat", "Squirrel"),
-        vibrationPattern = VibationPattern.BeeHive
-      ),
-      ApplicationChannel.NamedChannel(
-        id = UUID.randomUUID().toString(),
-        name = "Dog",
-        isEnabled = true,
-        triggerText = listOf("Cat", "Squirrel"),
-        vibrationPattern = VibationPattern.BeeHive
-      ),
-    ),
-    allChannels = ApplicationChannel.AllChannels(
-      isEnabled = true,
-      triggerText = listOf("Ice cream"),
-      vibrationPattern = VibationPattern.BeeHive
-    )
-  )
-
-    val applicationItem2 = ApplicationItem(
-        id = UUID.randomUUID().toString(),
+private fun AppItemPreview() {
+    val applicationItem1 = ApplicationItem(
         icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
         name = "Telegram",
+        packageName = "Telegram",
+        isEnabled = true,
+        namedChannels = listOf(
+            ApplicationChannel.NamedChannel(
+                id = UUID.randomUUID().toString(),
+                name = "Dog",
+                isEnabled = false,
+                triggerText = listOf("Cat", "Squirrel"),
+                vibrationPattern = VibationPattern.BeeHive
+            ),
+            ApplicationChannel.NamedChannel(
+                id = UUID.randomUUID().toString(),
+                name = "Dog",
+                isEnabled = true,
+                triggerText = listOf("Cat", "Squirrel"),
+                vibrationPattern = VibationPattern.BeeHive
+            ),
+        ),
+        allChannels = ApplicationChannel.AllChannels(
+            isEnabled = true,
+            triggerText = listOf("Ice cream"),
+            vibrationPattern = VibationPattern.BeeHive
+        )
+    )
+
+    val applicationItem2 = ApplicationItem(
+        icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
+        name = "Telegram",
+        packageName = "Telegram",
         isEnabled = false,
         namedChannels = listOf(
             ApplicationChannel.NamedChannel(
