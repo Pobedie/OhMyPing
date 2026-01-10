@@ -30,7 +30,7 @@ class AppContainer(private val application: Application) {
         AppSettingsDatabase.getDatabase(application)
     }
 
-    private val repository: AppRepository by lazy {
+    val repository: AppRepository by lazy {
         AppRepository(
             notificationAppRuleDao = notificationAppDB.notificationAppRuleDao(),
             notificationChannelRuleDao = notificationChannelDB.notificationChannelRuleDao(),
@@ -41,6 +41,4 @@ class AppContainer(private val application: Application) {
     fun provideMainViewModelFactory(): MainViewModelFactory {
         return MainViewModelFactory(application, repository)
     }
-
-//    fun getRepository(): AppRepository = repository
 }

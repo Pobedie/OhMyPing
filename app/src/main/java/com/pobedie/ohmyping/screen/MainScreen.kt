@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pobedie.ohmyping.screen
 
 import androidx.compose.foundation.Image
@@ -50,7 +52,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -65,22 +66,69 @@ import com.pobedie.ohmyping.screen.components.AppItem
 import com.pobedie.ohmyping.screen.components.InputField
 import com.pobedie.ohmyping.screen.components.TopBar
 import kotlinx.coroutines.launch
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.material3.Button
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.pobedie.ohmyping.service.NotificationCaptureService
 
 @Composable
 fun MainApp() {
-//    val app = LocalContext.current.applicationContext as MainApp
-    val app = MainApp.get(LocalContext.current.applicationContext)
+    val appContext = LocalContext.current.applicationContext
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val app = MainApp.get(appContext)
 
     val viewModel: MainViewModel = viewModel(
         factory = app.appContainer.provideMainViewModelFactory()
     )
+
+    var showPermissionPopup by remember { mutableStateOf(false) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (NotificationCaptureService.isNotificationAccessGranted(appContext, appContext.packageName)) {
+                    NotificationCaptureService.startService(appContext)
+                    showPermissionPopup = false
+                } else {
+                    showPermissionPopup = true
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    if (showPermissionPopup) {
+        ListenerPermissionPopup(
+            onClick = {
+                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                appContext.startActivity(intent)
+            }
+        )
+    }
 
     MainScreen(viewModel)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel = viewModel()) {
+private fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
@@ -107,8 +155,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     width = Dp.Hairline,
                     color = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.3f),
                     shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp)
-                )
-            ,
+                ),
         ) {
             var showAppSelector by remember { mutableStateOf(false) }
             val bottomSheetState = rememberModalBottomSheetState()
@@ -121,22 +168,29 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         applicationItem,
                         selectedChannelId = state.selectedAppChannelId,
                         onSwitchListener = { viewModel.switchAppListener(applicationItem) },
-                        onChannelSwitched = {viewModel.switchChannelListener(applicationItem, it)},
-                        onAddChannel = {viewModel.addChannel(applicationItem)},
-                        onChangeChannelSelection = {viewModel.changeAppChannelSelection(it)},
-                        onChannelNameChanged = {app, channel, name -> viewModel.changeAppChannelName(app, channel, name)},
-                        onAddTriggerText = {viewModel.addTriggerText(applicationItem, it)},
+                        onChannelSwitched = { viewModel.switchChannelListener(applicationItem, it) },
+                        onAddChannel = { viewModel.addChannel(applicationItem) },
+                        onChangeChannelSelection = { viewModel.changeAppChannelSelection(it) },
+                        onChannelNameChanged = { app, channel, name ->
+                            viewModel.changeAppChannelName(
+                                app,
+                                channel,
+                                name
+                            )
+                        },
+                        onAddTriggerText = { viewModel.addTriggerText(applicationItem, it) },
                         onTriggerTextChange = { channel, index, text ->
                             viewModel.changeTriggerText(
-                            app = applicationItem,
-                            channel = channel,
-                            index = index,
-                            triggerText = text
-                        )},
+                                app = applicationItem,
+                                channel = channel,
+                                index = index,
+                                triggerText = text
+                            )
+                        },
                         onRemoveTriggerText = { channel, index ->
                             viewModel.removeTriggerText(applicationItem, channel, index)
                         },
-                        onRemoveChannel = {viewModel.removeAppChannel(applicationItem, it)},
+                        onRemoveChannel = { viewModel.removeAppChannel(applicationItem, it) },
                         onVibrationPatternChanged = { channel, vibration ->
                             viewModel.changeAppChannelVibration(applicationItem, channel, vibration)
                         }
@@ -184,42 +238,86 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    }
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .innerShadow(
-                            RoundedCornerShape(22.dp),
-                            shadow = Shadow(
-                                radius = 36.dp,
-                                offset = DpOffset(0.dp, 5.dp),
-                                alpha = 0.2f
-                            )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .innerShadow(
+                        RoundedCornerShape(22.dp),
+                        shadow = Shadow(
+                            radius = 36.dp,
+                            offset = DpOffset(0.dp, 5.dp),
+                            alpha = 0.2f
                         )
-                )
-                if (showAppSelector) {
-                    AppSelector(
-                        bottomSheetState = bottomSheetState,
-                        allUserApps = state.filteredUserApps,
-                        onDismiss = {
-                            showAppSelector = false
-                        },
-                        onAddApplication = {
-                            viewModel.addApplication(it)
-                            scope.launch { bottomSheetState.hide() }
-                                .invokeOnCompletion {
-                                    if (!bottomSheetState.isVisible) {
-                                        showAppSelector = false
-                                    }
-                                }
-                        },
-                        onSearch = { viewModel.filterUserApplications(it) }
                     )
-                }
+            )
+            if (showAppSelector) {
+                AppSelector(
+                    bottomSheetState = bottomSheetState,
+                    allUserApps = state.filteredUserApps,
+                    onDismiss = {
+                        showAppSelector = false
+                    },
+                    onAddApplication = {
+                        viewModel.addApplication(it)
+                        scope.launch { bottomSheetState.hide() }
+                            .invokeOnCompletion {
+                                if (!bottomSheetState.isVisible) {
+                                    showAppSelector = false
+                                }
+                            }
+                    },
+                    onSearch = { viewModel.filterUserApplications(it) }
+                )
             }
         }
     }
+}
+
+@Composable
+private fun ListenerPermissionPopup(onClick:() -> Unit){
+    Popup(popupPositionProvider = object : PopupPositionProvider {
+        override fun calculatePosition(
+            anchorBounds: IntRect,
+            windowSize: IntSize,
+            layoutDirection: LayoutDirection,
+            popupContentSize: IntSize
+        ): IntOffset {
+            return IntOffset.Zero
+        }
+
+    }) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f))
+            ,
+            contentAlignment = Alignment.Center,
+            content = {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 28.dp)
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.padding(16.dp),
+                        text = "For this app to work you must give it a permission to read notification content.",
+                        textAlign = TextAlign.Justify
+                    )
+                    Button(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        onClick = onClick
+                    ) {
+                        Text("Open permission settings")
+                    }
+                }
+            }
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -15,14 +15,20 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.pobedie.ohmyping.MainApp
 import com.pobedie.ohmyping.R
+import com.pobedie.ohmyping.database.AppRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
 class NotificationCaptureService : NotificationListenerService() {
 
+    private lateinit var repository: AppRepository
 
     companion object {
         private const val TAG = "NotificationCaptureService"
@@ -61,6 +67,10 @@ class NotificationCaptureService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
+
+        val appContainer = (application as MainApp).appContainer
+        repository = appContainer.repository
+
         createNotificationChannel()
         Log.d(TAG, "NotificationCaptureService created")
     }
@@ -121,36 +131,50 @@ class NotificationCaptureService : NotificationListenerService() {
 
         // Extract notification data
         val appName = getAppName(packageName)
-        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
-        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+        val nTitle = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        val nText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
         val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
-        val channelId = notification.channelId
+        val nChannelId = notification.channelId
         val notificationId = sbn.id
 
-        if (text == "test") {
-            val timings: LongArray = longArrayOf(
-                50, 60,
-                50, 60,
-                50, 60,
-                50, 60,
-            )
-            val amplitudes: IntArray = intArrayOf(
-                250, 0,
-                250, 0,
-                250, 0,
-                250, 0,
-            )
-            val repeatIndex = -1
-            val vibrator = applicationContext.getSystemService(Vibrator::class.java)
+        Log.d(TAG, "Processing notification from $packageName:: $nTitle : $nChannelId - $nText")
+        val appRules = repository.applicationItems.first()
+        val vibrator = applicationContext.getSystemService(Vibrator::class.java)
 
-            serviceScope.launch {
-                vibrator.vibrate(
-                    VibrationEffect.createWaveform(
-                        timings, amplitudes, repeatIndex))
+        if (appRules.any { it.packageName == packageName }) {
+            val app = appRules.find { it.packageName == packageName } ?: return
+            delay(1000) // to avoid overlapping with notification vibration
+            if (nText != null && app.allChannels.triggerText.any { nText.contains(it) }) {
+                serviceScope.launch {
+                    vibrator.vibrate(
+                        VibrationEffect.createWaveform(
+                            app.allChannels.vibrationPattern.timings,
+                            app.allChannels.vibrationPattern.amplitudes,
+                            -1)
+                    )
+                }
+                return
+            }
+            if (nText != null && app.namedChannels.any { nTitle!!.contains(it.name) || nChannelId.contains(it.name) }) {
+                app.namedChannels.forEach { _channel ->
+                    if ( nTitle!!.contains(_channel.name) || nChannelId.contains(_channel.name) ) {
+                        if (_channel.triggerText.any { nText.contains(it) }) {
+                            serviceScope.launch {
+                                vibrator.vibrate(
+                                    VibrationEffect.createWaveform(
+                                        app.allChannels.vibrationPattern.timings,
+                                        app.allChannels.vibrationPattern.amplitudes,
+                                        -1)
+                                )
+                            }
+                        }
+                    }
+                }
+
             }
         }
-        Log.d(TAG, "Processing notification from $packageName:: $title : $channelId - $text")
+
         // Send notification here
     }
 

@@ -34,11 +34,12 @@ class MainViewModel(
 
     init {
         val userApps = getUserInstalledApps(application.applicationContext)
-        var appItems: List<ApplicationItem> = emptyList()
-        var listenerIsEnabled: Boolean = false
+//        var appItems: List<ApplicationItem> = emptyList()
+//        var listenerIsEnabled: Boolean = false
         viewModelScope.launch {
-            appItems = repository.applicationItems.first()
-            listenerIsEnabled = repository.isListenerActive.first()
+            val appItems = repository.applicationItems.first()
+            val listenerIsEnabled = repository.isListenerActive.first()
+            println("DEBUG listenerIsEnabled :  ${listenerIsEnabled}")
             println("DEBUG appItems :  ${appItems}")
             _viewState.update { state ->
                 state.copy(
@@ -80,10 +81,12 @@ class MainViewModel(
         }
         if (_viewState.value.applicationItems.none { it.isEnabled }) {
             _viewState.update { state ->
+                viewModelScope.launch { repository.switchNotificationListener(false) }
                 state.copy(notificationListenerEnabled = false)
             }
         } else if (_viewState.value.applicationItems.count { it.isEnabled } == 1 && newListenerState) {
             _viewState.update { state ->
+                viewModelScope.launch { repository.switchNotificationListener(true) }
                 state.copy(notificationListenerEnabled = true)
             }
         }
@@ -361,6 +364,7 @@ class MainViewModel(
         }
 
         if (!_viewState.value.notificationListenerEnabled) {
+            viewModelScope.launch { repository.switchNotificationListener(true) }
             _viewState.update { state -> state.copy(notificationListenerEnabled = true) }
         }
 

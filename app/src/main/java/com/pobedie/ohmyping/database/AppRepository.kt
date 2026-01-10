@@ -20,8 +20,6 @@ class AppRepository(
     private val appSettingsDao: AppSettingsDao,
 ) {
 
-    suspend fun getApplicationItems(): List<ApplicationItem> = applicationItems.first()
-
     suspend fun insertApplicationItem(appItem: ApplicationItem) =
         withContext(Dispatchers.IO) {
             println("DEBUG appItem inserted :  ${appItem}")
@@ -89,7 +87,10 @@ class AppRepository(
 
     suspend fun switchNotificationListener(isActive: Boolean) =
         withContext(Dispatchers.IO) {
-            appSettingsDao.updateListenerStatus(isActive)
+            println("DEBUG switchNotificationListener isActive :  ${isActive}")
+            // todo optimize settings db
+            appSettingsDao.initializeIfNeeded(isActive)
+            appSettingsDao.updateListenerActive(isActive)
         }
 
     val isListenerActive: Flow<Boolean> = appSettingsDao.getAppSettings()
