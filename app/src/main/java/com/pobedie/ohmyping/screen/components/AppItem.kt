@@ -260,7 +260,8 @@ private fun AllChannels(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = channel.vibrationPattern.patternName
+                    text = channel.vibrationPattern.patternName,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 DropdownMenu(
                     expanded = vibrationPopupOpened,
@@ -398,8 +399,8 @@ private fun NamedChannels(
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clickable(onClick = { expanded = true }),
-
-              text = channel.vibrationPattern.patternName
+              text = channel.vibrationPattern.patternName,
+              color = MaterialTheme.colorScheme.onSurface,
           )
             DropdownMenu(
                 expanded = expanded,
@@ -466,7 +467,6 @@ private fun AppItemPreview() {
             ),
         ),
         allChannels = ApplicationChannel.AllChannels(
-//            isEnabled = true,
             triggerText = listOf("Ice cream"),
             vibrationPattern = VibrationPattern.BeeHive
         ),
@@ -497,7 +497,6 @@ private fun AppItemPreview() {
             ),
         ),
         allChannels = ApplicationChannel.AllChannels(
-//            isEnabled = true,
             triggerText = listOf("Ice cream"),
             vibrationPattern = VibrationPattern.BeeHive
         ),
