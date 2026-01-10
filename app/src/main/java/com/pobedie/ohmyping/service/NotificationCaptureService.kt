@@ -140,42 +140,43 @@ class NotificationCaptureService : NotificationListenerService() {
 
         Log.d(TAG, "Processing notification from $packageName:: $nTitle : $nChannelId - $nText")
         val appRules = repository.applicationItems.first()
+        val serviceIsEnabled = repository.isListenerActive.first()
         val vibrator = applicationContext.getSystemService(Vibrator::class.java)
 
-        if (appRules.any { it.packageName == packageName }) {
+        if (serviceIsEnabled && appRules.any { it.packageName == packageName }) {
             val app = appRules.find { it.packageName == packageName } ?: return
             delay(1000) // to avoid overlapping with notification vibration
-            if (nText != null && app.allChannels.triggerText.any { nText.contains(it) }) {
+            if (app.isEnabled && nText != null && app.allChannels.triggerText.any { nText.contains(it) }) {
                 serviceScope.launch {
                     vibrator.vibrate(
                         VibrationEffect.createWaveform(
                             app.allChannels.vibrationPattern.timings,
                             app.allChannels.vibrationPattern.amplitudes,
-                            -1)
+                            -1
+                        )
                     )
                 }
                 return
             }
-            if (nText != null && app.namedChannels.any { nTitle!!.contains(it.name) || nChannelId.contains(it.name) }) {
+
+            if (app.isEnabled && nText != null && app.namedChannels.any { nTitle!!.contains(it.name) || nChannelId.contains(it.name) }) {
                 app.namedChannels.forEach { _channel ->
-                    if ( nTitle!!.contains(_channel.name) || nChannelId.contains(_channel.name) ) {
+                    if (_channel.isEnabled && nTitle!!.contains(_channel.name) || nChannelId.contains(_channel.name)) {
                         if (_channel.triggerText.any { nText.contains(it) }) {
                             serviceScope.launch {
                                 vibrator.vibrate(
                                     VibrationEffect.createWaveform(
-                                        app.allChannels.vibrationPattern.timings,
-                                        app.allChannels.vibrationPattern.amplitudes,
-                                        -1)
+                                        _channel.vibrationPattern.timings,
+                                        _channel.vibrationPattern.amplitudes,
+                                        -1
+                                    )
                                 )
                             }
                         }
                     }
                 }
-
             }
         }
-
-        // Send notification here
     }
 
     private fun isSystemNotification(sbn: StatusBarNotification): Boolean {

@@ -34,8 +34,6 @@ class MainViewModel(
 
     init {
         val userApps = getUserInstalledApps(application.applicationContext)
-//        var appItems: List<ApplicationItem> = emptyList()
-//        var listenerIsEnabled: Boolean = false
         viewModelScope.launch {
             val appItems = repository.applicationItems.first()
             val listenerIsEnabled = repository.isListenerActive.first()
@@ -70,7 +68,7 @@ class MainViewModel(
 
     fun switchAppListener(app: ApplicationItem) {
         val newListenerState = !app.isEnabled
-        viewModelScope.launch { repository.updateApplicationItem(app) }
+        viewModelScope.launch { repository.updateApplicationItem(app.copy(isEnabled = !app.isEnabled)) }
         _viewState.update { state ->
             val appList = state.applicationItems.toMutableList().map {
                 if (it.packageName == app.packageName) {
@@ -111,7 +109,7 @@ class MainViewModel(
     }
 
     fun switchChannelListener(app: ApplicationItem, channel: ApplicationChannel.NamedChannel) {
-        viewModelScope.launch { repository.updateChannelItem(app, channel) }
+        viewModelScope.launch { repository.updateChannelItem(app, channel.copy(isEnabled = !channel.isEnabled)) }
         val namedChannels = app.namedChannels.map {
             if (it.id == channel.id) {
                 it.copy(isEnabled = !it.isEnabled)
@@ -245,7 +243,6 @@ class MainViewModel(
                             newTriggerTexts.removeAt(index)
                             val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
                             viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
-//                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
                             _app.copy(allChannels = allChannels)
                         } else _app
                     }
