@@ -71,6 +71,7 @@ import android.provider.Settings
 import androidx.compose.material3.Button
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -277,7 +278,7 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
 }
 
 @Composable
-private fun ListenerPermissionPopup(onClick:() -> Unit){
+private fun ListenerPermissionPopup(onClick: () -> Unit) {
     Popup(popupPositionProvider = object : PopupPositionProvider {
         override fun calculatePosition(
             anchorBounds: IntRect,
@@ -287,13 +288,11 @@ private fun ListenerPermissionPopup(onClick:() -> Unit){
         ): IntOffset {
             return IntOffset.Zero
         }
-
     }) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f))
-            ,
+                .background(Color.Black.copy(alpha = 0.4f)),
             contentAlignment = Alignment.Center,
             content = {
                 Column(
@@ -383,12 +382,9 @@ private fun AppSelector(
                         .height(8.dp)
                 )
             }
-
         }
     }
 }
-
-
 
 
 @Preview

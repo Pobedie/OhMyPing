@@ -64,8 +64,6 @@ import com.pobedie.ohmyping.R
 import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
 import com.pobedie.ohmyping.entity.VibrationPattern
-import java.util.Random
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

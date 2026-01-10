@@ -15,7 +15,7 @@ data class NotificationAppRule(
     @ColumnInfo(name = "app_name")
     val appName: String,
 
-    @ColumnInfo(name = "app_icon") // in Base64
+    @ColumnInfo(name = "app_icon")
     val appIcon: Bitmap,
 
     @ColumnInfo(name = "trigger_words")

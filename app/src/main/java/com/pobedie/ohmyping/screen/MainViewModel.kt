@@ -15,15 +15,12 @@ import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
 import com.pobedie.ohmyping.entity.UserApplication
 import com.pobedie.ohmyping.entity.VibrationPattern
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 import kotlin.jvm.java
-import kotlin.random.Random
 
 class MainViewModel(
     application: Application,
@@ -37,8 +34,6 @@ class MainViewModel(
         viewModelScope.launch {
             val appItems = repository.applicationItems.first()
             val listenerIsEnabled = repository.isListenerActive.first()
-            println("DEBUG listenerIsEnabled :  ${listenerIsEnabled}")
-            println("DEBUG appItems :  ${appItems}")
             _viewState.update { state ->
                 state.copy(
                     applicationItems = appItems,
@@ -128,14 +123,12 @@ class MainViewModel(
     fun changeAppChannelName(app: ApplicationItem, channel: ApplicationChannel.NamedChannel, name: String) {
         viewModelScope.launch { repository.updateChannelItem(app, channel) }
         val newChannel = channel.copy(name = name)
-        println("DEBUG newChannel :  ${newChannel}")
         _viewState.update { state ->
             state.copy(applicationItems = state.applicationItems.map { _app ->
                 if (_app.packageName == app.packageName) {
                     _app.copy(
                         namedChannels = _app.namedChannels.map { _channel ->
                             if (_channel.id == channel.id) {
-                                println("DEBUG newChannelTrigger")
                                 newChannel
                             } else {
                                 _channel
@@ -158,9 +151,9 @@ class MainViewModel(
                             val newTriggerTexts = _app.allChannels.triggerText.toMutableList()
                             newTriggerTexts.add("")
                             val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
-//                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
-                            // todo
-                            viewModelScope.launch { repository.updateApplicationItem(_app.copy(allChannels = allChannels)) }
+                            viewModelScope.launch {
+                                repository.updateApplicationItem(_app.copy(allChannels = allChannels))
+                            }
                             _app.copy(allChannels = allChannels)
                         } else _app
                     }
@@ -174,7 +167,12 @@ class MainViewModel(
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
                                         val newTriggerTexts = _channel.triggerText.toMutableList()
                                         newTriggerTexts.add("")
-                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(triggerText = newTriggerTexts) ) }
+                                        viewModelScope.launch {
+                                            repository.updateChannelItem(
+                                                app,
+                                                _channel.copy(triggerText = newTriggerTexts)
+                                            )
+                                        }
                                         _channel.copy(triggerText = newTriggerTexts)
                                     } else _channel
                                 }
@@ -191,7 +189,7 @@ class MainViewModel(
         channel: ApplicationChannel,
         index: Int,
         triggerText: String
-        ) {
+    ) {
         _viewState.update { state ->
             if (channel is ApplicationChannel.AllChannels) {
                 state.copy(
@@ -201,8 +199,9 @@ class MainViewModel(
                                 if (_index == index) triggerText else _text
                             }
                             val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
-                            viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
-//                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            viewModelScope.launch {
+                                repository.updateApplicationItem(_app.copy(allChannels = allChannels))
+                            }
                             _app.copy(allChannels = allChannels)
                         } else _app
                     }
@@ -217,7 +216,12 @@ class MainViewModel(
                                         val newTriggerTexts = _channel.triggerText.mapIndexed { _index, _text ->
                                             if (_index == index) triggerText else _text
                                         }
-                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(triggerText = newTriggerTexts) ) }
+                                        viewModelScope.launch {
+                                            repository.updateChannelItem(
+                                                app,
+                                                _channel.copy(triggerText = newTriggerTexts)
+                                            )
+                                        }
                                         _channel.copy(triggerText = newTriggerTexts)
                                     } else _channel
                                 }
@@ -242,7 +246,9 @@ class MainViewModel(
                             val newTriggerTexts = _app.allChannels.triggerText.toMutableList()
                             newTriggerTexts.removeAt(index)
                             val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
-                            viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
+                            viewModelScope.launch {
+                                repository.updateApplicationItem(_app.copy(allChannels = allChannels))
+                            }
                             _app.copy(allChannels = allChannels)
                         } else _app
                     }
@@ -256,7 +262,12 @@ class MainViewModel(
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
                                         val newTriggerTexts = _channel.triggerText.toMutableList()
                                         newTriggerTexts.removeAt(index)
-                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(triggerText = newTriggerTexts) ) }
+                                        viewModelScope.launch {
+                                            repository.updateChannelItem(
+                                                app,
+                                                _channel.copy(triggerText = newTriggerTexts)
+                                            )
+                                        }
                                         _channel.copy(triggerText = newTriggerTexts)
                                     } else _channel
                                 }
@@ -275,7 +286,9 @@ class MainViewModel(
                     applicationItems = state.applicationItems.map { _app ->
                         if (_app.packageName == app.packageName) {
                             val allChannels = _app.allChannels.copy(vibrationPattern = vibration)
-                            viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
+                            viewModelScope.launch {
+                                repository.updateApplicationItem(_app.copy(allChannels = allChannels))
+                            }
                             _app.copy(allChannels = allChannels)
                         } else _app
                     }
@@ -287,7 +300,12 @@ class MainViewModel(
                             _app.copy(
                                 namedChannels = _app.namedChannels.map { _channel ->
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
-                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(vibrationPattern = vibration)) }
+                                        viewModelScope.launch {
+                                            repository.updateChannelItem(
+                                                app,
+                                                _channel.copy(vibrationPattern = vibration)
+                                            )
+                                        }
                                         _channel.copy(vibrationPattern = vibration)
                                     } else _channel
                                 }

@@ -24,7 +24,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlin.getValue
 
 class NotificationCaptureService : NotificationListenerService() {
 
@@ -33,7 +32,7 @@ class NotificationCaptureService : NotificationListenerService() {
     companion object {
         private const val TAG = "NotificationCaptureService"
         private const val CHANNEL_ID = "notification_listener"
-        private const val NOTIFICATION_ID = 696969
+        private const val NOTIFICATION_ID = 6969420
 
         fun startService(context: Context) {
             val intent = Intent(context, NotificationCaptureService::class.java)
@@ -55,7 +54,6 @@ class NotificationCaptureService : NotificationListenerService() {
                     "enabled_notification_listeners"
                 )
 
-                println("DEBUG enabledNotificationListeners :  ${enabledNotificationListeners}")
                 enabledNotificationListeners?.contains(flattenedComponentName) == true
             } catch (e: Exception) {
                 false
@@ -76,7 +74,6 @@ class NotificationCaptureService : NotificationListenerService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        println("DEBUG onStartCommand ")
         startForeground(NOTIFICATION_ID, createNotification())
         return START_STICKY // Restart if killed by system
     }
@@ -88,13 +85,11 @@ class NotificationCaptureService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        println("DEBUG onListenerConnected ")
         Log.d(TAG, "Notification listener connected")
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        println("DEBUG onListenerDisconnected ")
         Log.d(TAG, "Notification listener disconnected")
 
         // Try to reconnect
@@ -103,7 +98,6 @@ class NotificationCaptureService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
-        println("DEBUG onNotificationPosted ")
         serviceScope.launch {
             try {
                 processNotification(sbn)
@@ -121,8 +115,8 @@ class NotificationCaptureService : NotificationListenerService() {
             return
         }
 
-        // Skip system notifications that are not user-visible
-        if (isSystemNotification(sbn)) {
+        // Skip group summary notifications
+        if (isGroupSummaryNotification(sbn)) {
             return
         }
 
@@ -130,11 +124,11 @@ class NotificationCaptureService : NotificationListenerService() {
         val extras = notification.extras
 
         // Extract notification data
-        val appName = getAppName(packageName)
+        val nAppName = getAppName(packageName)
         val nTitle = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
         val nText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
-        val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
-        val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
+        val nSubText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
+        val nBigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
         val nChannelId = notification.channelId
         val notificationId = sbn.id
 
@@ -179,15 +173,9 @@ class NotificationCaptureService : NotificationListenerService() {
         }
     }
 
-    private fun isSystemNotification(sbn: StatusBarNotification): Boolean {
+    private fun isGroupSummaryNotification(sbn: StatusBarNotification): Boolean {
         val notification = sbn.notification
 
-        // Skip ongoing/persistent notifications
-        if ((notification.flags and Notification.FLAG_ONGOING_EVENT) != 0) {
-            return true
-        }
-
-        // Skip group summary notifications that don't have content
         if ((notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0) {
             val hasContent = notification.extras.getCharSequence(Notification.EXTRA_TEXT) != null ||
                     notification.extras.getCharSequence(Notification.EXTRA_BIG_TEXT) != null
