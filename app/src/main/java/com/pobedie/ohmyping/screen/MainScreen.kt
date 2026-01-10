@@ -258,6 +258,7 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     allUserApps = state.filteredUserApps,
                     onDismiss = {
                         showAppSelector = false
+                        viewModel.filterUserApplications("")
                     },
                     onAddApplication = {
                         viewModel.addApplication(it)
