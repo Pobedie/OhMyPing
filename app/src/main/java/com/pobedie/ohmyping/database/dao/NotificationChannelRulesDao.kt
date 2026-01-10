@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface NotificationChannelRuleDao {
 
     @Query("SELECT * FROM notification_channel_rules ORDER BY created_at ASC")
-    fun getAllAppRules(): Flow<List<NotificationChannelRule>>
+    fun getAllRules(): Flow<List<NotificationChannelRule>>
 
     @Query("SELECT * FROM notification_channel_rules WHERE is_active = 1")
     fun getActiveRules(): Flow<List<NotificationChannelRule>>
@@ -21,7 +21,7 @@ interface NotificationChannelRuleDao {
     @Query("SELECT * FROM notification_channel_rules WHERE app_package = :packageName")
     fun getRulesByPackage(packageName: String): Flow<List<NotificationChannelRule>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE) // todo catch -1 and perform Update instead
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRule(rule: NotificationChannelRule): Long
 
     @Update

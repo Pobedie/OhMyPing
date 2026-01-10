@@ -10,35 +10,49 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.pobedie.ohmyping.database.AppRepository
 import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
 import com.pobedie.ohmyping.entity.UserApplication
-import com.pobedie.ohmyping.entity.VibationPattern
+import com.pobedie.ohmyping.entity.VibrationPattern
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.jvm.java
+import kotlin.random.Random
 
-class MainViewModel(application: Application) : AndroidViewModel(application ) {
+class MainViewModel(
+    private val application: Application,
+    private val repository: AppRepository
+) : AndroidViewModel(application ) {
     private val _viewState = MutableStateFlow(ViewState())
     val viewState = _viewState.asStateFlow()
 
     init {
         val userApps = getUserInstalledApps(application.applicationContext)
+        var appItems: List<ApplicationItem> = emptyList()
+        var listenerIsEnabled: Boolean = false
+        viewModelScope.launch {
+            appItems = repository.applicationItems.first()
+            listenerIsEnabled = repository.isListenerActive.first()
+        }
         _viewState.update { state ->
             state.copy(
+                applicationItems = appItems,
                 userApps = userApps,
                 filteredUserApps = userApps,
-                notificationListenerEnabled =
-                    if (_viewState.value.applicationItems.isEmpty()) false else true
+                notificationListenerEnabled = listenerIsEnabled
+//                    if (_viewState.value.applicationItems.isEmpty()) false else true
             )
         }
     }
 
     fun switchListener() {
         if (_viewState.value.applicationItems.any{it.isEnabled}) {
+            viewModelScope.launch { repository.switchNotificationListener(!_viewState.value.notificationListenerEnabled) }
             _viewState.update { state ->
                 state.copy(notificationListenerEnabled = !state.notificationListenerEnabled
                 )
@@ -53,8 +67,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
     }
 
     fun switchAppListener(app: ApplicationItem) {
-        // todo optimize
         val newListenerState = !app.isEnabled
+        viewModelScope.launch { repository.updateApplicationItem(app) }
         _viewState.update { state ->
             val appList = state.applicationItems.toMutableList().map {
                 if (it.packageName == app.packageName) {
@@ -76,14 +90,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
 
     fun addChannel(app: ApplicationItem) {
         val channels = app.namedChannels.toMutableList()
-        val channelId = UUID.randomUUID().toString()
+        val channelId = Random.nextLong()
         channels.add(
             ApplicationChannel.NamedChannel(
                 id = channelId,
                 name = "",
                 isEnabled = true,
                 triggerText = emptyList(),
-                vibrationPattern = VibationPattern.BeeHive
+                vibrationPattern = VibrationPattern.BeeHive,
+                creationTime = System.currentTimeMillis()
             )
         )
         val item = app.copy(
@@ -100,6 +115,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
     }
 
     fun switchChannelListener(app: ApplicationItem, channel: ApplicationChannel.NamedChannel) {
+        viewModelScope.launch { repository.updateChannelItem(app, channel) }
         val namedChannels = app.namedChannels.map {
             if (it.id == channel.id) {
                 it.copy(isEnabled = !it.isEnabled)
@@ -116,6 +132,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
     }
 
     fun changeAppChannelName(app: ApplicationItem, channel: ApplicationChannel.NamedChannel, name: String) {
+        viewModelScope.launch { repository.updateChannelItem(app, channel) }
         val newChannel = channel.copy(name = name)
         println("DEBUG newChannel :  ${newChannel}")
         _viewState.update { state ->
@@ -146,7 +163,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                         if (_app.packageName == app.packageName) {
                             val newTriggerTexts = _app.allChannels.triggerText.toMutableList()
                             newTriggerTexts.add("")
-                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
+//                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            // todo
+                            viewModelScope.launch { repository.updateApplicationItem(_app.copy(allChannels = allChannels)) }
+                            _app.copy(allChannels = allChannels)
                         } else _app
                     }
                 )
@@ -159,6 +180,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
                                         val newTriggerTexts = _channel.triggerText.toMutableList()
                                         newTriggerTexts.add("")
+                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(triggerText = newTriggerTexts) ) }
                                         _channel.copy(triggerText = newTriggerTexts)
                                     } else _channel
                                 }
@@ -184,7 +206,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                             val newTriggerTexts = _app.allChannels.triggerText.mapIndexed { _index, _text ->
                                 if (_index == index) triggerText else _text
                             }
-                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
+                            viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
+//                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            _app.copy(allChannels = allChannels)
                         } else _app
                     }
                 )
@@ -198,6 +223,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                                         val newTriggerTexts = _channel.triggerText.mapIndexed { _index, _text ->
                                             if (_index == index) triggerText else _text
                                         }
+                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(triggerText = newTriggerTexts) ) }
                                         _channel.copy(triggerText = newTriggerTexts)
                                     } else _channel
                                 }
@@ -221,7 +247,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                         if (_app.packageName == app.packageName) {
                             val newTriggerTexts = _app.allChannels.triggerText.toMutableList()
                             newTriggerTexts.removeAt(index)
-                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            val allChannels = _app.allChannels.copy(triggerText = newTriggerTexts)
+                            viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
+//                            _app.copy(allChannels = _app.allChannels.copy(triggerText = newTriggerTexts))
+                            _app.copy(allChannels = allChannels)
                         } else _app
                     }
                 )
@@ -234,6 +263,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
                                         val newTriggerTexts = _channel.triggerText.toMutableList()
                                         newTriggerTexts.removeAt(index)
+                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(triggerText = newTriggerTexts) ) }
                                         _channel.copy(triggerText = newTriggerTexts)
                                     } else _channel
                                 }
@@ -245,13 +275,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         }
     }
 
-    fun changeAppChannelVibration(app: ApplicationItem, channel: ApplicationChannel, vibration: VibationPattern) {
+    fun changeAppChannelVibration(app: ApplicationItem, channel: ApplicationChannel, vibration: VibrationPattern) {
         _viewState.update { state ->
             if (channel is ApplicationChannel.AllChannels) {
                 state.copy(
                     applicationItems = state.applicationItems.map { _app ->
                         if (_app.packageName == app.packageName) {
-                            _app.copy(allChannels = _app.allChannels.copy(vibrationPattern = vibration))
+                            val allChannels = _app.allChannels.copy(vibrationPattern = vibration)
+                            viewModelScope.launch { repository.updateApplicationItem( _app.copy(allChannels = allChannels) ) }
+                            _app.copy(allChannels = allChannels)
                         } else _app
                     }
                 )
@@ -262,6 +294,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                             _app.copy(
                                 namedChannels = _app.namedChannels.map { _channel ->
                                     if (_channel.id == (channel as ApplicationChannel.NamedChannel).id) {
+                                        viewModelScope.launch { repository.updateChannelItem( app, _channel.copy(vibrationPattern = vibration)) }
                                         _channel.copy(vibrationPattern = vibration)
                                     } else _channel
                                 }
@@ -273,7 +306,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         }
 
         val vibrator = application.applicationContext.getSystemService(Vibrator::class.java)
-
         viewModelScope.launch {
             vibrator.vibrate(
                 VibrationEffect.createWaveform(
@@ -283,14 +315,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
         }
     }
 
-    fun changeAppChannelSelection(id: String) {
-        val newId = if (_viewState.value.selectedAppChannelId == id) "" else id
+    fun changeAppChannelSelection(id: Long) {
+        val newId = if (_viewState.value.selectedAppChannelId == id) 0L else id
         _viewState.update { state ->
             state.copy(selectedAppChannelId = newId)
         }
     }
 
-    fun removeAppChannel(app: ApplicationItem, channelId: String) {
+    fun removeAppChannel(app: ApplicationItem, channelId: Long) {
+        viewModelScope.launch { repository.deleteChannelItem(channelId) }
         _viewState.update { state ->
             state.copy(
                 applicationItems = state.applicationItems.map { _app ->
@@ -299,7 +332,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                         _app.copy(namedChannels = newChannels)
                     } else _app
                 },
-                selectedAppChannelId = ""
+                selectedAppChannelId = 0L
             )
         }
     }
@@ -312,24 +345,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application ) {
                 packageName = app.packageName,
                 icon = app.icon,
                 isEnabled = true,
-//                namedChannels = emptyList(),
-                // todo remove
-                namedChannels = listOf(
-                    ApplicationChannel.NamedChannel(
-                        id = UUID.randomUUID().toString(),
-                        name = "test",
-                        isEnabled = true,
-                        triggerText = emptyList(),
-                        vibrationPattern = VibationPattern.BeeHive
-                    ),
-                ),
+                namedChannels = emptyList(),
                 allChannels = ApplicationChannel.AllChannels(
-                    isEnabled = true,
+//                    isEnabled = true,
                     triggerText = emptyList(),
-                    vibrationPattern = VibationPattern.BeeHive
+                    vibrationPattern = VibrationPattern.BeeHive,
                 ),
+                creationTime = System.currentTimeMillis()
             )
             if (!appList.contains(appItem)) {
+                viewModelScope.launch { repository.insertApplicationItem(appItem) }
                 appList.add(appItem)
             } else {
                 Toast.makeText(

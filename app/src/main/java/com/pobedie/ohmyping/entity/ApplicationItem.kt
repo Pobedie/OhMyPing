@@ -8,5 +8,6 @@ data class ApplicationItem(
     val icon: Bitmap,
     val isEnabled: Boolean,
     val namedChannels: List<ApplicationChannel.NamedChannel>,
-    val allChannels: ApplicationChannel.AllChannels
+    val allChannels: ApplicationChannel.AllChannels,
+    val creationTime: Long
 )

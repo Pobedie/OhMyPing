@@ -13,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,24 +63,25 @@ import androidx.core.graphics.drawable.toDrawable
 import com.pobedie.ohmyping.R
 import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
-import com.pobedie.ohmyping.entity.VibationPattern
+import com.pobedie.ohmyping.entity.VibrationPattern
+import java.util.Random
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppItem(
     applicationItem: ApplicationItem,
-    selectedChannelId: String,
+    selectedChannelId: Long,
     onSwitchListener: () -> Unit,
     onChannelSwitched: (ApplicationChannel.NamedChannel) -> Unit,
     onAddChannel: () -> Unit,
-    onChangeChannelSelection: (id: String) -> Unit,
+    onChangeChannelSelection: (id: Long) -> Unit,
     onChannelNameChanged: (ApplicationItem, ApplicationChannel.NamedChannel, name: String) -> Unit,
     onAddTriggerText: (ApplicationChannel) -> Unit,
     onTriggerTextChange: (ApplicationChannel, id: Int, text: String) -> Unit,
     onRemoveTriggerText: (ApplicationChannel, id: Int) -> Unit,
-    onRemoveChannel: (id: String) -> Unit,
-    onVibrationPatternChanged: (ApplicationChannel, VibationPattern) -> Unit
+    onRemoveChannel: (id: Long) -> Unit,
+    onVibrationPatternChanged: (ApplicationChannel, VibrationPattern) -> Unit
 ) {
   Column(
     modifier = Modifier
@@ -197,7 +197,7 @@ private fun AllChannels(
     onTriggerTextChange: (Int, String) -> Unit,
     onAddTriggerText: () -> Unit,
     onRemoveTriggerText: (Int) -> Unit,
-    onVibrationPatternChange: (VibationPattern) -> Unit
+    onVibrationPatternChange: (VibrationPattern) -> Unit
 ) {
     var vibrationPopupOpened by remember { mutableStateOf(false) }
     Spacer(Modifier.height(16.dp))
@@ -268,7 +268,7 @@ private fun AllChannels(
                     shape = RoundedCornerShape(8.dp),
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
-                    VibationPattern.entries.forEach { pattern ->
+                    VibrationPattern.entries.forEach { pattern ->
                         DropdownMenuItem(
                             text = { Text(pattern.patternName) },
                             onClick = { onVibrationPatternChange(pattern) },
@@ -284,14 +284,14 @@ private fun AllChannels(
 @Composable
 private fun NamedChannels(
     channel: ApplicationChannel.NamedChannel,
-    selectedChannelId: String,
+    selectedChannelId: Long,
     onChannelListenerSwitch: () -> Unit,
     onChannelNameChange: (String) -> Unit,
     onTriggerTextChange: (Int, String) -> Unit,
     onAddTriggerText: () -> Unit,
     onRemoveTriggerText: (Int) -> Unit,
-    onVibrationPatternChange: (VibationPattern) -> Unit,
-    onChangeChannelSelection: (String) -> Unit,
+    onVibrationPatternChange: (VibrationPattern) -> Unit,
+    onChangeChannelSelection: (Long) -> Unit,
     onRemoveChannel: () -> Unit
 ) {
     val channelIsSelected = selectedChannelId == channel.id
@@ -405,7 +405,7 @@ private fun NamedChannels(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                VibationPattern.entries.forEach { pattern ->
+                VibrationPattern.entries.forEach { pattern ->
                     DropdownMenuItem(
                         text = { Text(pattern.patternName) },
                         onClick = { onVibrationPatternChange(pattern) },
@@ -449,25 +449,28 @@ private fun AppItemPreview() {
         isEnabled = true,
         namedChannels = listOf(
             ApplicationChannel.NamedChannel(
-                id = UUID.randomUUID().toString(),
+                id = kotlin.random.Random.nextLong(),
                 name = "Dog",
                 isEnabled = false,
                 triggerText = listOf("Cat", "Squirrel"),
-                vibrationPattern = VibationPattern.BeeHive
+                vibrationPattern = VibrationPattern.BeeHive,
+                creationTime = 1L
             ),
             ApplicationChannel.NamedChannel(
-                id = UUID.randomUUID().toString(),
+                id = kotlin.random.Random.nextLong(),
                 name = "Dog",
                 isEnabled = true,
                 triggerText = listOf("Cat", "Squirrel"),
-                vibrationPattern = VibationPattern.BeeHive
+                vibrationPattern = VibrationPattern.BeeHive,
+                creationTime = 2L
             ),
         ),
         allChannels = ApplicationChannel.AllChannels(
-            isEnabled = true,
+//            isEnabled = true,
             triggerText = listOf("Ice cream"),
-            vibrationPattern = VibationPattern.BeeHive
-        )
+            vibrationPattern = VibrationPattern.BeeHive
+        ),
+        creationTime = 3L
     )
 
     val applicationItem2 = ApplicationItem(
@@ -477,30 +480,33 @@ private fun AppItemPreview() {
         isEnabled = false,
         namedChannels = listOf(
             ApplicationChannel.NamedChannel(
-                id = UUID.randomUUID().toString(),
+                id = 1L,
                 name = "Dog",
                 isEnabled = false,
                 triggerText = listOf("Cat", "Squirrel"),
-                vibrationPattern = VibationPattern.BeeHive
+                vibrationPattern = VibrationPattern.BeeHive,
+                creationTime = 1L
             ),
             ApplicationChannel.NamedChannel(
-                id = UUID.randomUUID().toString(),
+                id = 0L,
                 name = "Dog",
                 isEnabled = true,
                 triggerText = listOf("Cat", "Squirrel"),
-                vibrationPattern = VibationPattern.BeeHive
+                vibrationPattern = VibrationPattern.BeeHive,
+                creationTime = 2L
             ),
         ),
         allChannels = ApplicationChannel.AllChannels(
-            isEnabled = true,
+//            isEnabled = true,
             triggerText = listOf("Ice cream"),
-            vibrationPattern = VibationPattern.BeeHive
-        )
+            vibrationPattern = VibrationPattern.BeeHive
+        ),
+        creationTime = 4L
     )
     Column() {
         AppItem(
             applicationItem2,
-            "",
+            1,
             {},
             {},
             {},
@@ -515,7 +521,7 @@ private fun AppItemPreview() {
         Spacer(Modifier.height(11.dp))
         AppItem(
             applicationItem1,
-            "",
+            0,
             {},
             {},
             {},

@@ -1,6 +1,6 @@
 package com.pobedie.ohmyping.entity
 
-enum class VibationPattern(
+enum class VibrationPattern(
     val patternName: String,
     val timings: LongArray,
     val amplitudes: IntArray
