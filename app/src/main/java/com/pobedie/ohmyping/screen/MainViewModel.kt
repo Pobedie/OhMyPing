@@ -15,6 +15,7 @@ import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
 import com.pobedie.ohmyping.entity.UserApplication
 import com.pobedie.ohmyping.entity.VibrationPattern
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -25,9 +26,9 @@ import kotlin.jvm.java
 import kotlin.random.Random
 
 class MainViewModel(
-    private val application: Application,
+    application: Application,
     private val repository: AppRepository
-) : AndroidViewModel(application ) {
+) : AndroidViewModel(application) {
     private val _viewState = MutableStateFlow(ViewState())
     val viewState = _viewState.asStateFlow()
 
@@ -38,15 +39,15 @@ class MainViewModel(
         viewModelScope.launch {
             appItems = repository.applicationItems.first()
             listenerIsEnabled = repository.isListenerActive.first()
-        }
-        _viewState.update { state ->
-            state.copy(
-                applicationItems = appItems,
-                userApps = userApps,
-                filteredUserApps = userApps,
-                notificationListenerEnabled = listenerIsEnabled
-//                    if (_viewState.value.applicationItems.isEmpty()) false else true
-            )
+            println("DEBUG appItems :  ${appItems}")
+            _viewState.update { state ->
+                state.copy(
+                    applicationItems = appItems,
+                    userApps = userApps,
+                    filteredUserApps = userApps,
+                    notificationListenerEnabled = listenerIsEnabled
+                )
+            }
         }
     }
 
@@ -90,17 +91,9 @@ class MainViewModel(
 
     fun addChannel(app: ApplicationItem) {
         val channels = app.namedChannels.toMutableList()
-        val channelId = Random.nextLong()
-        channels.add(
-            ApplicationChannel.NamedChannel(
-                id = channelId,
-                name = "",
-                isEnabled = true,
-                triggerText = emptyList(),
-                vibrationPattern = VibrationPattern.BeeHive,
-                creationTime = System.currentTimeMillis()
-            )
-        )
+        val newChannel = ApplicationChannel.emptyChannel()
+        viewModelScope.launch { repository.insertChannelItem(app, newChannel)}
+        channels.add( newChannel )
         val item = app.copy(
             namedChannels = channels
         )
@@ -109,7 +102,7 @@ class MainViewModel(
                 applicationItems = state.applicationItems.map {
                     if (it.packageName == app.packageName) item else it
                 },
-                selectedAppChannelId = channelId
+                selectedAppChannelId = newChannel.id
             )
         }
     }
@@ -347,13 +340,12 @@ class MainViewModel(
                 isEnabled = true,
                 namedChannels = emptyList(),
                 allChannels = ApplicationChannel.AllChannels(
-//                    isEnabled = true,
                     triggerText = emptyList(),
                     vibrationPattern = VibrationPattern.BeeHive,
                 ),
                 creationTime = System.currentTimeMillis()
             )
-            if (!appList.contains(appItem)) {
+            if (!appList.any { it.packageName == appItem.packageName }) {
                 viewModelScope.launch { repository.insertApplicationItem(appItem) }
                 appList.add(appItem)
             } else {

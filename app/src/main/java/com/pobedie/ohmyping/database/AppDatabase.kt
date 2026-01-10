@@ -31,9 +31,9 @@ abstract class NotificationAppRulesDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     NotificationAppRulesDatabase::class.java,
-                    "notification_monitor_db"
+                    "notification_app_rules"
                 )
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
                 instance
@@ -61,9 +61,9 @@ abstract class NotificationChannelDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     NotificationChannelDatabase::class.java,
-                    "notification_monitor_db"
+                    "notification_channel_rules"
                 )
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
                 instance
@@ -90,9 +90,9 @@ abstract class AppSettingsDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppSettingsDatabase::class.java,
-                    "notification_monitor_db"
+                    "app_settings"
                 )
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
                 instance

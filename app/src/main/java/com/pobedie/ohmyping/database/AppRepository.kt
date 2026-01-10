@@ -24,6 +24,7 @@ class AppRepository(
 
     suspend fun insertApplicationItem(appItem: ApplicationItem) =
         withContext(Dispatchers.IO) {
+            println("DEBUG appItem inserted :  ${appItem}")
             val rule: NotificationAppRule = NotificationAppRule(
                 appPackage = appItem.packageName,
                 appName = appItem.name,
@@ -38,6 +39,7 @@ class AppRepository(
 
     suspend fun insertChannelItem(app: ApplicationItem, appChannel: ApplicationChannel.NamedChannel) =
         withContext(Dispatchers.IO) {
+            println("DEBUG appChannel inserted:  ${appChannel}")
             val rule: NotificationChannelRule = NotificationChannelRule(
                 id = appChannel.id.toLong(),
                 appPackage = app.packageName,
@@ -52,6 +54,7 @@ class AppRepository(
 
     suspend fun updateApplicationItem(appItem: ApplicationItem) =
         withContext(Dispatchers.IO){
+            println("DEBUG appItem updated:  ${appItem}")
             val rule: NotificationAppRule = NotificationAppRule(
                 appPackage = appItem.packageName,
                 appName = appItem.name,
@@ -66,6 +69,7 @@ class AppRepository(
 
     suspend fun updateChannelItem(app: ApplicationItem, appChannel: ApplicationChannel.NamedChannel) =
         withContext(Dispatchers.IO) {
+            println("DEBUG appChannel updated:  ${appChannel}")
             val rule: NotificationChannelRule = NotificationChannelRule(
                 id = appChannel.id.toLong(),
                 appPackage = app.packageName,

@@ -54,15 +54,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pobedie.ohmyping.MainApp
 import com.pobedie.ohmyping.entity.UserApplication
 import com.pobedie.ohmyping.screen.components.AppItem
 import com.pobedie.ohmyping.screen.components.InputField
 import com.pobedie.ohmyping.screen.components.TopBar
 import kotlinx.coroutines.launch
+
+@Composable
+fun MainApp() {
+//    val app = LocalContext.current.applicationContext as MainApp
+    val app = MainApp.get(LocalContext.current.applicationContext)
+
+    val viewModel: MainViewModel = viewModel(
+        factory = app.appContainer.provideMainViewModelFactory()
+    )
+
+    MainScreen(viewModel)
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
