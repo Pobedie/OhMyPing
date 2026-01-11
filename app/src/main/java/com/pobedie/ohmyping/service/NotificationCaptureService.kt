@@ -132,7 +132,6 @@ class NotificationCaptureService : NotificationListenerService() {
         val nChannelId = notification.channelId
         val notificationId = sbn.id
 
-        Log.d(TAG, "Processing notification from $packageName:: $nTitle : $nChannelId - $nText")
         val appRules = repository.applicationItems.first()
         val serviceIsEnabled = repository.isListenerActive.first()
         val vibrator = applicationContext.getSystemService(Vibrator::class.java)
