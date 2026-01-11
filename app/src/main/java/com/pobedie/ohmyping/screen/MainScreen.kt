@@ -240,7 +240,7 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 modifier = Modifier
                     .fillMaxSize()
                     .innerShadow(
-                        RoundedCornerShape(22.dp),
+                        RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
                         shadow = Shadow(
                             radius = 36.dp,
                             offset = DpOffset(0.dp, 5.dp),
