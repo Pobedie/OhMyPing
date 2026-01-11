@@ -10,6 +10,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.pobedie.ohmyping.R
 import com.pobedie.ohmyping.database.AppRepository
 import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
@@ -55,7 +56,7 @@ class MainViewModel(
         } else {
             Toast.makeText(
                 this@MainViewModel.application.applicationContext,
-                "You must have enabled app notification listener",
+                application.applicationContext.getString(R.string.toast_must_have_app_enabled),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -369,7 +370,7 @@ class MainViewModel(
             } else {
                 Toast.makeText(
                     this@MainViewModel.application.applicationContext,
-                    "This app is already in the list",
+                    application.applicationContext.getString(R.string.toast_app_already_in_list),
                     Toast.LENGTH_SHORT
                 ).show()
             }

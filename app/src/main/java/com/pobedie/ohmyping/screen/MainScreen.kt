@@ -71,8 +71,8 @@ import android.provider.Settings
 import androidx.compose.material3.Button
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -201,12 +201,7 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 item {
                     if (state.applicationItems.isEmpty()) {
                         Text(
-                            text = "1. Select an app\n" +
-                                    "2. Optionally enter chat or notification channel\n" +
-                                    "3. Enter trigger words (like your name, nickname or any other word)\n" +
-                                    "4. Select vibration pattern\n\n" +
-                                    "Your phone will vibrate with custom vibration when app's notification " +
-                                    "contains the trigger word",
+                            text = stringResource(R.string.intro_to_app),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(8.dp))
@@ -304,14 +299,14 @@ private fun ListenerPermissionPopup(onClick: () -> Unit) {
                 ) {
                     Text(
                         modifier = Modifier.padding(16.dp),
-                        text = "For this app to work you must give it a permission to read notification content.",
+                        text = stringResource(R.string.intro_permission_request),
                         textAlign = TextAlign.Justify
                     )
                     Button(
                         modifier = Modifier.padding(bottom = 16.dp),
                         onClick = onClick
                     ) {
-                        Text("Open permission settings")
+                        Text(stringResource(R.string.open_permission_settings))
                     }
                 }
             }
@@ -337,7 +332,7 @@ private fun AppSelector(
         InputField(
             modifier = Modifier.padding(horizontal = 8.dp),
             inputValue = searchInput,
-            placeholder = "Search app",
+            placeholder = stringResource(R.string.search_placeholder),
             onInputChange = {
                 searchInput = it
                 onSearch(searchInput)

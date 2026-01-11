@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">Oh My Ping</string>
+
+    <string name="intro_to_app">1. Select an app
+        \n2. Enter trigger words (like your name, nickname or any other word)
+        \n3. Select vibration pattern
+        \n4. You can optionally set up pinging for notifications from individual channels (like chatroom or dm\'s from someone)\n
+        \nYour phone will vibrate with custom vibration when app\'s notification contains the trigger word</string>
+    <string name="intro_permission_request">For this app to work you must give it a permission to read notification content.\n\n
+        In the \"Notification read, reply \&amp; control\" permission settings select Oh My Ping app and turn on \"Allow notification access\"</string>
+    <string name="open_permission_settings">Open permission settings</string>
+
+    <string name="add_channel">Add channel</string>
+    <string name="channel">Channel:</string>
+    <string name="channel_placeholder">Chat or channel name</string>
+    <string name="delete_channel">Delete channel</string>
+    <string name="all_notifications">All notifications:</string>
+    <string name="trigger_on_text">Trigger words</string>
+    <string name="trigger_text_placeholder">Text to trigger ping</string>
+    <string name="vibration_pattern">Vibration pattern</string>
+
+    <string name="input_field_add">Add</string>
+    <string name="input_field_delete">Delete</string>
+
+    <string name="search_placeholder">Search app</string>
+
+    <string name="toast_app_already_in_list">This app is already in the list</string>
+    <string name="toast_must_have_app_enabled">You must have at least one app listener enabled</string>
+
 </resources>

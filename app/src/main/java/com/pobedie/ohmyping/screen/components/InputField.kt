@@ -22,8 +22,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pobedie.ohmyping.R
 
 @Composable
 fun InputField(
@@ -55,7 +57,7 @@ fun InputField(
             .focusRequester(focusRequester)
             .clickable(onClick = onAdd),
                 enabled = isExpanded,
-        value = if (isExpanded) inputValue else "Add",
+        value = if (isExpanded) inputValue else stringResource(R.string.input_field_add),
         textStyle = if (isExpanded) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.bodyLarge,
         placeholder = {
             Text(
@@ -84,7 +86,11 @@ fun InputField(
                         animatedRotation.value
                     ),
                     imageVector = Icons.Default.Clear,
-                    contentDescription = if (isExpanded) "Delete" else "Add"
+                    contentDescription = if (isExpanded){
+                        stringResource(R.string.input_field_delete)
+                    } else {
+                        stringResource(R.string.input_field_add)
+                    }
                 )
             }
         }

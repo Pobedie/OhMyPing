@@ -1,5 +1,9 @@
 package com.pobedie.ohmyping.entity
 
+import android.provider.Settings.Global.getString
+import com.pobedie.ohmyping.R
+
+
 enum class VibrationPattern(
     val patternName: String,
     val timings: LongArray,

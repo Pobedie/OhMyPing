@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -179,7 +180,7 @@ fun AppItem(
             tint = MaterialTheme.colorScheme.onSurface,
           )
           Text(
-            text = "Add channel",
+            text = stringResource(R.string.add_channel),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
           )
@@ -200,7 +201,7 @@ private fun AllChannels(
     var vibrationPopupOpened by remember { mutableStateOf(false) }
     Spacer(Modifier.height(16.dp))
     Text(
-        text = "All notifications:",
+        text = stringResource(R.string.all_notifications),
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.Bold
@@ -209,7 +210,7 @@ private fun AllChannels(
         Modifier.padding(start = 16.dp)
     ) {
         Text(
-            text = "Trigger on text",
+            text = stringResource(R.string.trigger_on_text),
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.height(8.dp))
@@ -224,7 +225,7 @@ private fun AllChannels(
             val isAdditionItem = index == channel.triggerText.lastIndex + 1
             InputField(
                 inputValue = triggerText,
-                placeholder = "Text to trigger ping",
+                placeholder = stringResource(R.string.trigger_text_placeholder),
                 onInputChange = { onTriggerTextChange(index, it) },
                 onAdd = { onAddTriggerText() },
                 onTrailingIconClick = { if (isAdditionItem) onAddTriggerText() else onRemoveTriggerText(index) },
@@ -241,7 +242,7 @@ private fun AllChannels(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Vibration pattern",
+                text = stringResource(R.string.vibration_pattern),
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(Modifier.width(8.dp))
@@ -315,7 +316,7 @@ private fun NamedChannels(
             )
         }
         Text(
-            text = "Channel:",
+            text = stringResource(R.string.channel),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -340,7 +341,7 @@ private fun NamedChannels(
         Column(Modifier.padding(horizontal = 16.dp)) {
             InputField(
                 inputValue = channel.name,
-                placeholder = "Chat or channel name",
+                placeholder = stringResource(R.string.channel_placeholder),
                 onInputChange = {onChannelNameChange(it)},
                 onAdd = {},
                 onTrailingIconClick = {onChannelNameChange("")},
@@ -352,7 +353,7 @@ private fun NamedChannels(
                 Modifier.padding(start = 16.dp)
             ) {
                 Text(
-                    text = "Trigger on text",
+                    text = stringResource(R.string.trigger_on_text),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(8.dp))
@@ -366,7 +367,7 @@ private fun NamedChannels(
                         val isAdditionItem = index == channel.triggerText.lastIndex + 1
                         InputField(
                             inputValue = triggerText,
-                            placeholder = "Text to trigger ping",
+                            placeholder = stringResource(R.string.trigger_text_placeholder),
                             onInputChange = { onTriggerTextChange(index, it) },
                             onAdd = { onAddTriggerText() },
                             onTrailingIconClick = { if (isAdditionItem) onAddTriggerText() else onRemoveTriggerText(index) },
@@ -384,7 +385,7 @@ private fun NamedChannels(
           horizontalArrangement = Arrangement.SpaceBetween
         ) {
           Text(
-            text ="Vibration pattern",
+            text = stringResource(R.string.vibration_pattern),
             color = MaterialTheme.colorScheme.onSurface,
           )
           var expanded by remember { mutableStateOf(false) }
@@ -424,7 +425,7 @@ private fun NamedChannels(
                     disabledContentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete channel")
+                Text(stringResource(R.string.delete_channel))
                 Icon(
                     imageVector = Icons.Outlined.Delete,
                     contentDescription = "delete",
