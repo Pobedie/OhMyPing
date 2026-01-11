@@ -14,10 +14,10 @@ enum class VibrationPattern(
             50, 60,
         ),
         amplitudes = intArrayOf(
-            250, 0,
-            250, 0,
-            250, 0,
-            250, 0,
+            255, 0,
+            255, 0,
+            255, 0,
+            255, 0,
         )
     ),
     Bach(
