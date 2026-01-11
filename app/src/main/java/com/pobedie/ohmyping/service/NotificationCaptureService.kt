@@ -153,10 +153,11 @@ class NotificationCaptureService : NotificationListenerService() {
                 return
             }
 
-            if (app.isEnabled && nText != null && app.namedChannels.any { nTitle!!.contains(it.name) || nChannelId.contains(it.name) }) {
+            if (app.isEnabled && nText != null) {
                 app.namedChannels.forEach { _channel ->
-                    if (_channel.isEnabled && nTitle!!.contains(_channel.name) || nChannelId.contains(_channel.name)) {
-                        if (_channel.triggerText.any { nText.contains(it) }) {
+                    if (_channel.isEnabled && nTitle!!.contains(_channel.name, true) ||
+                        nChannelId.contains(_channel.name)) {
+                        if (_channel.triggerText.any { nText.contains(it, true) } || _channel.triggerText.isEmpty()) {
                             serviceScope.launch {
                                 vibrator.vibrate(
                                     VibrationEffect.createWaveform(
