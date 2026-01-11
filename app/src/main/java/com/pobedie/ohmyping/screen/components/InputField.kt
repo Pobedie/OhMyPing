@@ -39,8 +39,8 @@ fun InputField(
 ) {
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(isExpanded) {
-        if (isExpanded) {
-            if (inputValue.isBlank()) focusRequester.requestFocus()
+        if (isExpanded && inputValue.isBlank()) {
+            focusRequester.requestFocus()
         }
     }
     val animatedWidth = animateFloatAsState(
