@@ -374,7 +374,8 @@ class MainViewModel(
                 ).show()
             }
             state.copy(
-                applicationItems = appList
+                applicationItems = appList,
+                filteredUserApps = state.userApps
             )
         }
 
