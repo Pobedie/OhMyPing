@@ -3,5 +3,5 @@ Sometimes you get so many notifications from group chats that you start ignoring
 
 **This app reads all incoming notifications and alerts you with a custom vibration pattern when it detects your trigger words. You can set unique trigger words (like your nickname or name) and vibration patterns for each app and notification channel.**
 
-![Screenshot 1](./readme_screenshots/1.png)
-![Screenshot 2](./readme_screenshots/2.png)
+
+<img src="./readme_screenshots/1.png" width="50%" /><img src="./readme_screenshots/2.png" width="50%" />
