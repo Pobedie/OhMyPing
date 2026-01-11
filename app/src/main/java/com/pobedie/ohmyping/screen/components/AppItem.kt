@@ -38,6 +38,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -415,22 +416,27 @@ private fun NamedChannels(
         }
             }
             Spacer(Modifier.height(16.dp))
-            Button(
-                onClick = { onRemoveChannel() },
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.error,
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = MaterialTheme.colorScheme.error
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(stringResource(R.string.delete_channel))
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "delete",
-                    tint = MaterialTheme.colorScheme.error
-                )
+                Button(
+                    onClick = { onRemoveChannel() },
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.error,
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.delete_channel))
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
             Spacer(Modifier.height(8.dp))
         }
