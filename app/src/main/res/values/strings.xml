@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Oh My Ping</string>
+    <string name="app_name" translatable="false">Oh My Ping</string>
 
     <string name="intro_to_app">1. Select an app
         \n2. Enter trigger words (like your name, nickname or any other word)

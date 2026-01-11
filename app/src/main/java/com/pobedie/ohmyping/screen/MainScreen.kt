@@ -233,7 +233,7 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
                             contentDescription = "Add application"
                         )
                     }
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(16.dp).imePadding())
                 }
             }
             Box(

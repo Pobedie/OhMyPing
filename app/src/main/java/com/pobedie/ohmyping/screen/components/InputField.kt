@@ -40,11 +40,11 @@ fun InputField(
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(isExpanded) {
         if (isExpanded) {
-            focusRequester.requestFocus()
+            if (inputValue.isBlank()) focusRequester.requestFocus()
         }
     }
     val animatedWidth = animateFloatAsState(
-        targetValue = if (isExpanded) 1f else 0.40f,
+        targetValue = if (isExpanded) 1f else 0.3f,
     )
     val animatedRotation = animateFloatAsState(
         targetValue = if (isExpanded) 0f else 45f
@@ -52,19 +52,24 @@ fun InputField(
 
     TextField(
         modifier = modifier
-            .fillMaxWidth(animatedWidth.value) // todo Find better solution
+            .fillMaxWidth(animatedWidth.value)
             .clip(RoundedCornerShape(99.dp))
             .focusRequester(focusRequester)
             .clickable(onClick = onAdd),
                 enabled = isExpanded,
-        value = if (isExpanded) inputValue else stringResource(R.string.input_field_add),
+//        todo: Find a way to pass "Add" string to value when !isExpanded and keep the right size and animation
+//        value = if (isExpanded) inputValue  else stringResource(R.string.input_field_add),
+        value = if (isExpanded) inputValue else "",
         textStyle = if (isExpanded) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.bodyLarge,
         placeholder = {
-            Text(
-                text = placeholder,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1
-            )
+            if (isExpanded) {
+                Text(
+                    text = placeholder,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1
+                )
+
+            }
         },
         onValueChange = { onInputChange(it) },
         shape = RoundedCornerShape(99.dp),

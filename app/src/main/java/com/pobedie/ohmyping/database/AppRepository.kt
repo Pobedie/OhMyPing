@@ -25,7 +25,7 @@ class AppRepository(
                 appPackage = appItem.packageName,
                 appName = appItem.name,
                 appIcon = appItem.icon,
-                triggerWords = appItem.allChannels.triggerText,
+                triggerWords = appItem.allChannels.triggerText.filterNot { it.isBlank() },
                 vibrationPattern = appItem.allChannels.vibrationPattern,
                 isActive = appItem.isEnabled,
                 createdAt = System.currentTimeMillis()
@@ -39,7 +39,7 @@ class AppRepository(
                 id = appChannel.id.toLong(),
                 appPackage = app.packageName,
                 channelName = appChannel.name,
-                triggerWords = appChannel.triggerText,
+                triggerWords = appChannel.triggerText.filterNot { it.isBlank() },
                 vibrationPattern = appChannel.vibrationPattern,
                 isActive = appChannel.isEnabled,
                 createdAt = System.currentTimeMillis()
@@ -53,7 +53,7 @@ class AppRepository(
                 appPackage = appItem.packageName,
                 appName = appItem.name,
                 appIcon = appItem.icon,
-                triggerWords = appItem.allChannels.triggerText,
+                triggerWords = appItem.allChannels.triggerText.filterNot { it.isBlank() },
                 vibrationPattern = appItem.allChannels.vibrationPattern,
                 isActive = appItem.isEnabled,
                 createdAt = appItem.creationTime
@@ -67,7 +67,7 @@ class AppRepository(
                 id = appChannel.id.toLong(),
                 appPackage = app.packageName,
                 channelName = appChannel.name,
-                triggerWords = appChannel.triggerText,
+                triggerWords = appChannel.triggerText.filterNot { it.isBlank() },
                 vibrationPattern = appChannel.vibrationPattern,
                 isActive = appChannel.isEnabled,
                 createdAt = appChannel.creationTime

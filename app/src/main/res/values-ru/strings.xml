@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intro_to_app">1. Выберите приложение     \\n2. Введите триггерные слова (например, ваше имя, никнейм или любое другое слово)     \\n3. Выберите шаблон вибрации     \\n4. При желании можно настроить пинг для уведомлений из отдельных каналов (например, чата или личных сообщений от кого-либо)\\n     \\nТелефон будет вибрировать выбранным образом, когда в уведомлении приложения встретится триггерное слово</string>
+    <string name="intro_permission_request">Для работы приложения необходимо предоставить разрешение на чтение содержимого уведомлений.\\n\\n     В настройках разрешения \\\"Чтение, ответ и управление уведомлениями\\\" выберите приложение Oh My Ping и включите \\\"Разрешить доступ к уведомлениям\\\"</string>
+    <string name="open_permission_settings">Открыть настройки разрешений</string>
+    <string name="add_channel">Добавить канал</string>
+    <string name="channel">Канал:</string>
+    <string name="channel_placeholder">Название чата или канала</string>
+    <string name="delete_channel">Удалить канал</string>
+    <string name="all_notifications">Все уведомления:</string>
+    <string name="trigger_on_text">Триггерные слова</string>
+    <string name="trigger_text_placeholder">Текст для активации пинга</string>
+    <string name="vibration_pattern">Стиль вибрации</string>
+    <string name="input_field_add">Добавить</string>
+    <string name="input_field_delete">Удалить</string>
+    <string name="search_placeholder">Поиск приложения</string>
+    <string name="toast_app_already_in_list">Это приложение уже в списке</string>
+    <string name="toast_must_have_app_enabled">Должен быть включён хотя бы один слушатель приложений</string>
+</resources>
