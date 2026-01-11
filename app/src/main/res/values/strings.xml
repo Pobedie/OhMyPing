@@ -6,8 +6,7 @@
         \n3. Select vibration pattern
         \n4. You can optionally set up pinging for notifications from individual channels (like chatroom or dm\'s from someone)\n
         \nYour phone will vibrate with custom vibration when app\'s notification contains the trigger word</string>
-    <string name="intro_permission_request">For this app to work you must give it a permission to read notification content.\n\n
-        In the \"Notification read, reply \&amp; control\" permission settings select Oh My Ping app and turn on \"Allow notification access\"</string>
+    <string name="intro_permission_request">For this app to work you must give it a permission to read notification content.\n\nIn the \"Notification read, reply \&amp; control\" permission settings select OhMyPing app and turn on \"Allow notification access\"\n\nYou also might need to open app\'s info page in settings and enable \'Allow restricted options\'</string>
     <string name="open_permission_settings">Open permission settings</string>
 
     <string name="add_channel">Add channel</string>
