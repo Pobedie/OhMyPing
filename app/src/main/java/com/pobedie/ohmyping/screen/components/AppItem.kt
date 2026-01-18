@@ -246,7 +246,8 @@ private fun AllChannels(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(R.string.vibration_pattern),
@@ -399,7 +400,8 @@ private fun NamedChannels(
         Row(
           modifier = Modifier
             .fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween
+          horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
           Text(
