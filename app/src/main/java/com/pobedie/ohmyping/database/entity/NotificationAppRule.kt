@@ -1,6 +1,5 @@
 package com.pobedie.ohmyping.database.entity
 
-import android.graphics.Bitmap
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -16,7 +15,7 @@ data class NotificationAppRule(
     val appName: String,
 
     @ColumnInfo(name = "app_icon")
-    val appIcon: Bitmap,
+    val appIcon: ByteArray?,
 
     @ColumnInfo(name = "trigger_words")
     val triggerWords: List<String>,

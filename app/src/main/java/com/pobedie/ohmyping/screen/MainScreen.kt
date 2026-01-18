@@ -67,11 +67,13 @@ import com.pobedie.ohmyping.screen.components.InputField
 import com.pobedie.ohmyping.screen.components.TopBar
 import kotlinx.coroutines.launch
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.provider.Settings
 import androidx.compose.material3.Button
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -80,6 +82,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -233,9 +236,12 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
                             contentDescription = "Add application"
                         )
                     }
-                    Spacer(Modifier.height(16.dp).imePadding())
+                    Spacer(Modifier
+                        .height(16.dp)
+                        .imePadding())
                 }
             }
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -248,6 +254,7 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         )
                     )
             )
+
             if (showAppSelector) {
                 AppSelector(
                     bottomSheetState = bottomSheetState,
@@ -341,6 +348,7 @@ private fun AppSelector(
             onTrailingIconClick = {},
             isExpanded = true
         )
+        val packageManager = LocalContext.current.packageManager
         LazyColumn {
             item { Spacer(Modifier.height(16.dp)) }
             items(allUserApps) { app ->
@@ -352,14 +360,24 @@ private fun AppSelector(
                         .clickable(onClick = { onAddApplication(app) }),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .size(48.dp)
-                            .clip(CircleShape),
-                        bitmap = app.icon.asImageBitmap(),
-                        contentDescription = null
-                    )
+                    val icon = packageManager.getApplicationIcon(app.appInfo).toBitmap()
+                    if (icon != null) {
+                        Image(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .size(48.dp)
+                                .clip(CircleShape),
+                            bitmap = icon.asImageBitmap(),
+                            contentDescription = null
+                        )
+                    } else {
+                        Box(
+                            Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceDim)
+                        )
+                    }
                     Text(
                         text = app.name,
                         fontFamily = FontFamily(Font(R.font.roboto_bold)),
@@ -378,6 +396,13 @@ private fun AppSelector(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ByteArray.toBitmap(): ImageBitmap {
+    return this.let {
+        BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
     }
 }
 

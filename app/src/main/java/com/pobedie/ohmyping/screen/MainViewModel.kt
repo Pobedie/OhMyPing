@@ -3,6 +3,8 @@ package com.pobedie.ohmyping.screen
 import android.app.Application
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.widget.Toast
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import kotlin.jvm.java
 
 class MainViewModel(
@@ -31,16 +34,16 @@ class MainViewModel(
     val viewState = _viewState.asStateFlow()
 
     init {
-        val userApps = getUserInstalledApps(application.applicationContext)
         viewModelScope.launch {
+            val userApps = getUserInstalledApps(application.applicationContext)
             val appItems = repository.applicationItems.first()
             val listenerIsEnabled = repository.isListenerActive.first()
             _viewState.update { state ->
                 state.copy(
                     applicationItems = appItems,
+                    notificationListenerEnabled = listenerIsEnabled,
                     userApps = userApps,
                     filteredUserApps = userApps,
-                    notificationListenerEnabled = listenerIsEnabled
                 )
             }
         }
@@ -350,12 +353,15 @@ class MainViewModel(
     }
 
     fun addApplication(app: UserApplication) {
+        val packageManager = application.applicationContext.packageManager
         _viewState.update { state ->
             val appList = state.applicationItems.toMutableList()
+            val iconOriginal = packageManager.getApplicationIcon(app.appInfo).toBitmap()
+            val iconCompressed = compressBitmap(iconOriginal)
             val appItem = ApplicationItem(
                 name = app.name,
                 packageName = app.packageName,
-                icon = app.icon,
+                icon = iconCompressed,
                 isEnabled = true,
                 namedChannels = emptyList(),
                 allChannels = ApplicationChannel.AllChannels(
@@ -409,8 +415,27 @@ class MainViewModel(
             UserApplication(
                 name = packageManager.getApplicationLabel(it.applicationInfo!!).toString(),
                 packageName = it.packageName,
-                icon = packageManager.getApplicationIcon(it.applicationInfo!!).toBitmap(),
+                icon = null,
+                appInfo = it.applicationInfo!!
             )
         }
     }
+}
+
+private fun compressBitmap(bitmap: Bitmap): ByteArray {
+    val resizedBitmap = resizeBitmap(bitmap, 128, 128)
+    val outputStream = ByteArrayOutputStream()
+    resizedBitmap.compress(Bitmap.CompressFormat.WEBP, 70, outputStream)
+    return outputStream.toByteArray()
+}
+private fun resizeBitmap(bitmap: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
+    val width = bitmap.width
+    val height = bitmap.height
+
+    val scaleWidth = newWidth.toFloat() / width
+    val scaleHeight = newHeight.toFloat() / height
+
+    val matrix = Matrix()
+    matrix.postScale(scaleWidth, scaleHeight)
+    return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
 }

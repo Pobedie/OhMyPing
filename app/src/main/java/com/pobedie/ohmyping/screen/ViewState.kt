@@ -8,5 +8,5 @@ data class ViewState(
     val notificationListenerEnabled: Boolean = true,
     val userApps: List<UserApplication> = emptyList(),
     val filteredUserApps: List<UserApplication> = emptyList(),
-    val selectedAppChannelId: Long = 0
+    val selectedAppChannelId: Long = 0,
 )

@@ -1,10 +1,11 @@
 package com.pobedie.ohmyping.entity
 
-import android.graphics.Bitmap
+import android.content.pm.ApplicationInfo
 
 
 data class UserApplication(
     val name: String,
     val packageName: String,
-    val icon: Bitmap
+    val icon: ByteArray?,
+    val appInfo: ApplicationInfo
 )

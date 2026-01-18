@@ -1,5 +1,6 @@
 package com.pobedie.ohmyping.screen.components
 
+import android.graphics.BitmapFactory
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -38,7 +39,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -60,8 +61,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.drawable.toDrawable
 import com.pobedie.ohmyping.R
 import com.pobedie.ohmyping.entity.ApplicationChannel
 import com.pobedie.ohmyping.entity.ApplicationItem
@@ -94,13 +93,20 @@ fun AppItem(
         .padding(horizontal = 16.dp, vertical = 8.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Image(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape),
-        bitmap = applicationItem.icon.asImageBitmap(),
-        contentDescription = "App icon"
-      )
+        if (applicationItem.icon != null) {
+            Image(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
+                bitmap = applicationItem.icon.toBitmap(),
+                contentDescription = "App icon"
+            )
+        } else {
+            Box(Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceDim))
+        }
       Spacer(Modifier.width(16.dp))
       Text(
         modifier = Modifier.weight(1f, true),
@@ -444,12 +450,20 @@ private fun NamedChannels(
   HorizontalDivider(modifier = Modifier.padding(horizontal = 36.dp))
 }
 
+@Composable
+fun ByteArray.toBitmap(): ImageBitmap {
+    return this.let {
+        BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+    }
+}
+
 
 @Preview
 @Composable
 private fun AppItemPreview() {
     val applicationItem1 = ApplicationItem(
-        icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
+//        icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
+        icon = null,
         name = "Telegram",
         packageName = "Telegram",
         isEnabled = true,
@@ -479,7 +493,8 @@ private fun AppItemPreview() {
     )
 
     val applicationItem2 = ApplicationItem(
-        icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
+//        icon = (R.drawable.telegram_logo).toDrawable().toBitmap(),
+        icon = null,
         name = "Telegram",
         packageName = "Telegram",
         isEnabled = false,
