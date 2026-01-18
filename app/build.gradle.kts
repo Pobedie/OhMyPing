@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.ohmyping"
+        applicationId = "com.pobedie.ohmyping"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
