@@ -8,6 +8,8 @@
         \nYour phone will vibrate with custom vibration when app\'s notification contains the trigger word</string>
     <string name="intro_permission_request">For this app to work you must give it a permission to read notification content.\n\nIn the \"Notification read, reply \&amp; control\" permission settings select OhMyPing app and turn on \"Allow notification access\"\n\nYou also might need to open app\'s info page in settings and enable \'Allow restricted options\'</string>
     <string name="open_permission_settings">Open permission settings</string>
+    <string name="battery_optimization_request">For the app to work properly you also should disable battery optimization.</string>
+    <string name="open_battery_settings">Open app\'s settings</string>
 
     <string name="add_channel">Add channel</string>
     <string name="channel">Channel:</string>

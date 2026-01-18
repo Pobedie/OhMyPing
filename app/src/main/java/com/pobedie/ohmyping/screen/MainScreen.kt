@@ -2,6 +2,7 @@
 
 package com.pobedie.ohmyping.screen
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -68,6 +69,9 @@ import com.pobedie.ohmyping.screen.components.TopBar
 import kotlinx.coroutines.launch
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.compose.material3.Button
 import androidx.compose.runtime.DisposableEffect
@@ -76,12 +80,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -92,6 +90,7 @@ import com.pobedie.ohmyping.service.NotificationCaptureService
 fun MainApp() {
     val appContext = LocalContext.current.applicationContext
     val lifecycleOwner = LocalLifecycleOwner.current
+    val powerManager = appContext.getSystemService(Context.POWER_SERVICE) as PowerManager
     val app = MainApp.get(appContext)
 
     val viewModel: MainViewModel = viewModel(
@@ -99,6 +98,7 @@ fun MainApp() {
     )
 
     var showPermissionPopup by remember { mutableStateOf(false) }
+    var showBatteryOptimizationPopup by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -109,6 +109,7 @@ fun MainApp() {
                 } else {
                     showPermissionPopup = true
                 }
+                showBatteryOptimizationPopup = !powerManager.isIgnoringBatteryOptimizations(appContext.packageName)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -116,6 +117,9 @@ fun MainApp() {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
+
+    MainScreen(viewModel)
 
     if (showPermissionPopup) {
         ListenerPermissionPopup(
@@ -127,7 +131,9 @@ fun MainApp() {
         )
     }
 
-    MainScreen(viewModel)
+    if (showBatteryOptimizationPopup && !showPermissionPopup) {
+        BatteryOptimizationPopup(onClick = {openBatteryOptimizationSettings(appContext)})
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -281,43 +287,110 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
 @Composable
 private fun ListenerPermissionPopup(onClick: () -> Unit) {
-    Popup(popupPositionProvider = object : PopupPositionProvider {
-        override fun calculatePosition(
-            anchorBounds: IntRect,
-            windowSize: IntSize,
-            layoutDirection: LayoutDirection,
-            popupContentSize: IntSize
-        ): IntOffset {
-            return IntOffset.Zero
-        }
-    }) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f)),
-            contentAlignment = Alignment.Center,
-            content = {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 28.dp)
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainer),
-                    horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.4f)),
+        contentAlignment = Alignment.Center,
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 28.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(16.dp),
+                    text = stringResource(R.string.intro_permission_request),
+                    textAlign = TextAlign.Justify
+                )
+                Button(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    onClick = onClick
                 ) {
-                    Text(
-                        modifier = Modifier.padding(16.dp),
-                        text = stringResource(R.string.intro_permission_request),
-                        textAlign = TextAlign.Justify
-                    )
-                    Button(
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        onClick = onClick
-                    ) {
-                        Text(stringResource(R.string.open_permission_settings))
-                    }
+                    Text(stringResource(R.string.open_permission_settings))
                 }
             }
-        )
+        }
+    )
+}
+
+@Composable
+private fun BatteryOptimizationPopup(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.4f)),
+        contentAlignment = Alignment.Center,
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 28.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(16.dp),
+                    text = stringResource(R.string.battery_optimization_request),
+                    textAlign = TextAlign.Justify
+                )
+                Button(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    onClick = onClick
+                ) {
+                    Text(stringResource(R.string.open_battery_settings))
+                }
+            }
+        }
+    )
+}
+
+private fun openBatteryOptimizationSettings(context: Context) {
+    val intent = Intent()
+
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+            // Standard Android approach
+            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            intent.data = Uri.fromParts("package", context.packageName, null)
+            intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
+        }
+        Build.MANUFACTURER.equals("xiaomi", ignoreCase = true) -> {
+            // Xiaomi devices
+            intent.setClassName(
+                "com.miui.powerkeeper",
+                "com.miui.powerkeeper.ui.HiddenAppsConfigActivity"
+            )
+        }
+        Build.MANUFACTURER.equals("samsung", ignoreCase = true) -> {
+            // Samsung devices
+            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            intent.data = Uri.parse("package:${context.packageName}")
+        }
+        Build.MANUFACTURER.equals("huawei", ignoreCase = true) -> {
+            // Huawei devices
+            intent.setClassName(
+                "com.huawei.systemmanager",
+                "com.huawei.systemmanager.optimize.process.ProtectActivity"
+            )
+        }
+        else -> {
+            // Fallback for other devices
+            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            intent.data = Uri.parse("package:${context.packageName}")
+        }
+    }
+
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // Fallback to standard approach
+        val fallbackIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        fallbackIntent.data = Uri.parse("package:${context.packageName}")
+        context.startActivity(fallbackIntent)
     }
 }
 
