@@ -121,4 +121,37 @@ class AppRepository(
         return@map appItems
     }
 
+    // this only returns enabled rules and without icons (to save ram)
+    val activeRules: Flow<List<ApplicationItem>> = combine(
+        notificationAppRuleDao.getActiveRules(),
+        notificationChannelRuleDao.getActiveRules(),
+        ::Pair
+    ).map { (apps, channels) ->
+        val appItems = apps.map { app ->
+            val filteredChannels = channels.filter { it.appPackage == app.appPackage }
+            ApplicationItem(
+                packageName = app.appPackage,
+                name = app.appName,
+                icon = app.appIcon,
+                isEnabled = app.isActive,
+                allChannels = ApplicationChannel.AllChannels(
+                    triggerText = app.triggerWords,
+                    vibrationPattern = app.vibrationPattern
+                ),
+                namedChannels = filteredChannels.map { _channel ->
+                    ApplicationChannel.NamedChannel(
+                        id = _channel.id,
+                        name = _channel.channelName,
+                        isEnabled = _channel.isActive,
+                        triggerText = _channel.triggerWords,
+                        vibrationPattern = _channel.vibrationPattern,
+                        creationTime = _channel.createdAt
+                    )
+                },
+                creationTime = app.createdAt
+            )
+        }
+        return@map appItems
+    }
+
 }

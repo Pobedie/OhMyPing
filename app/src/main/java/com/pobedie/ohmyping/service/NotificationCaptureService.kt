@@ -132,14 +132,14 @@ class NotificationCaptureService : NotificationListenerService() {
         val nChannelId = notification.channelId
         val notificationId = sbn.id
 
-        val appRules = repository.applicationItems.first()
+        val appRules = repository.activeRules.first()
         val serviceIsEnabled = repository.isListenerActive.first()
         val vibrator = applicationContext.getSystemService(Vibrator::class.java)
 
         if (serviceIsEnabled && appRules.any { it.packageName == packageName }) {
             val app = appRules.find { it.packageName == packageName } ?: return
             delay(1000) // to avoid overlapping with notification vibration
-            if (app.isEnabled && nText != null && app.allChannels.triggerText.any { nText.contains(it) }) {
+            if (nText != null && app.allChannels.triggerText.any { nText.contains(it) }) {
                 serviceScope.launch {
                     vibrator.vibrate(
                         VibrationEffect.createWaveform(
@@ -152,9 +152,9 @@ class NotificationCaptureService : NotificationListenerService() {
                 return
             }
 
-            if (app.isEnabled && nText != null) {
+            if (nText != null) {
                 app.namedChannels.forEach { _channel ->
-                    if (_channel.isEnabled && nTitle!!.contains(_channel.name, true) ||
+                    if (nTitle!!.contains(_channel.name, true) ||
                         nChannelId.contains(_channel.name)) {
                         if (_channel.triggerText.any { nText.contains(it, true) } || _channel.triggerText.isEmpty()) {
                             serviceScope.launch {
