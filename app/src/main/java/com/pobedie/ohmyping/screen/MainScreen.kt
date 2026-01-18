@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.pobedie.ohmyping.screen
 
 import android.content.Context
