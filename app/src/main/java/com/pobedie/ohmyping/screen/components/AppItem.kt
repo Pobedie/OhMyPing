@@ -261,13 +261,14 @@ private fun AllChannels(
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .clickable(onClick = { vibrationPopupOpened = true })
             ) {
-
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(start = 8.dp)
+                        .padding(vertical = 8.dp),
                     text = channel.vibrationPattern.patternName,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
                 )
                 DropdownMenu(
                     expanded = vibrationPopupOpened,
@@ -302,6 +303,7 @@ private fun NamedChannels(
     onRemoveChannel: () -> Unit
 ) {
     val channelIsSelected = selectedChannelId == channel.id
+    var vibrationPopupOpened by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(22.dp))
@@ -399,37 +401,47 @@ private fun NamedChannels(
             .fillMaxWidth(),
           horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
           Text(
             text = stringResource(R.string.vibration_pattern),
             color = MaterialTheme.colorScheme.onSurface,
           )
-          var expanded by remember { mutableStateOf(false) }
           Spacer(Modifier.width(8.dp))
 
-          Text(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .weight(1f)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable(onClick = { expanded = true }),
-              text = channel.vibrationPattern.patternName,
-              color = MaterialTheme.colorScheme.onSurface,
-          )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .clickable(onClick = { vibrationPopupOpened = true })
             ) {
-                VibrationPattern.entries.forEach { pattern ->
-                    DropdownMenuItem(
-                        text = { Text(pattern.patternName) },
-                        onClick = { onVibrationPatternChange(pattern) },
-                    )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                        .padding(vertical = 8.dp),
+                    text = channel.vibrationPattern.patternName,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
+                )
+                DropdownMenu(
+                    expanded = vibrationPopupOpened,
+                    onDismissRequest = { vibrationPopupOpened = false },
+                    shape = RoundedCornerShape(8.dp),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    VibrationPattern.entries.forEach { pattern ->
+                        DropdownMenuItem(
+                            text = { Text(pattern.patternName) },
+                            onClick = { onVibrationPatternChange(pattern) },
+                        )
+                    }
                 }
             }
         }
             }
             Spacer(Modifier.height(16.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
