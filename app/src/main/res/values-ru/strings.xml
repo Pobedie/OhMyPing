@@ -11,6 +11,7 @@
     <string name="trigger_on_text">Триггерные слова</string>
     <string name="trigger_text_placeholder">Текст для активации пинга</string>
     <string name="vibration_pattern">Стиль вибрации</string>
+    <string name="keep_trigger_empty_lable">Оставь список триггерных слов пустым чтобы получать пинг от всех уведомлений с этого канала</string>
     <string name="input_field_add">Добавить</string>
     <string name="input_field_delete">Удалить</string>
     <string name="search_placeholder">Поиск приложения</string>

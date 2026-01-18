@@ -364,6 +364,14 @@ private fun NamedChannels(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(8.dp))
+                if (channel.triggerText.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.keep_trigger_empty_lable),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.surfaceTint,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
