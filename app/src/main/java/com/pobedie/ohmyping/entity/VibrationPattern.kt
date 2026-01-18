@@ -72,7 +72,7 @@ enum class VibrationPattern(
         amplitudes = intArrayOf(
             10, 60, 100, 140, 180, 220, 255,
             255, 220, 180, 140, 100, 60, 10
-            )
+        )
     ),
     Trrrrrrrrrr(
         patternName = "Trrrrrrrrrrrr",
@@ -88,6 +88,11 @@ enum class VibrationPattern(
             250, 0, 250, 0, 250, 0, 250,
             0, 250, 0, 250, 0, 250, 0,
         )
+    ),
+    QuickTap(
+        patternName = "Quick Tap",
+        timings = longArrayOf(50),
+        amplitudes = intArrayOf(250)
     )
 }
 
