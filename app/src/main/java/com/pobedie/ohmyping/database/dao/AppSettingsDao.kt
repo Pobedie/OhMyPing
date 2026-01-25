@@ -8,12 +8,18 @@ import kotlinx.coroutines.flow.Flow
 interface AppSettingsDao {
 
     @Query("SELECT is_listener_active FROM app_settings")
-    fun getAppSettings(): Flow<Boolean>
+    fun listenerState(): Flow<Boolean>
+
+    @Query("SELECT is_logging_active FROM app_settings")
+    fun loggingState(): Flow<Boolean>
 
     @Query("UPDATE app_settings SET is_listener_active = :isActive WHERE `key` = 1")
     suspend fun updateListenerActive(isActive: Boolean)
 
+    @Query("UPDATE app_settings SET is_logging_active = :isActive WHERE `key` = 1")
+    suspend fun updateLoggingActive(isActive: Boolean)
+
     // Initialize if not exists
-    @Query("INSERT OR IGNORE INTO app_settings (`key`, is_listener_active) VALUES (1, :isActive)")
-    suspend fun initializeIfNeeded(isActive: Boolean)
+    @Query("INSERT OR IGNORE INTO app_settings (`key`, is_listener_active, is_logging_active) VALUES (1, :isListenerActive, :isLoggingActive)")
+    suspend fun initializeIfNeeded(isListenerActive: Boolean, isLoggingActive: Boolean)
 }

@@ -9,7 +9,9 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +22,6 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -31,7 +32,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +58,8 @@ import com.pobedie.ohmyping.R
 @Composable
 fun TopBar(
     listenerEnabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onShowLogs: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -84,40 +89,52 @@ fun TopBar(
           animationSpec = if (listenerEnabled) tween(500) else tween(500)
         )
 
-        Box(
-          modifier = Modifier
-              .padding(end = 4.dp)
-              .fillMaxWidth(0.5f)
-        ) {
           Box(
-            modifier = Modifier
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(48.dp))
-                .background(MaterialTheme.colorScheme.inversePrimary)
-                .border(
-                    4.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(48.dp)
-                )
-          )
-          Text(
-            modifier = Modifier
-                .padding(24.dp)
-                .matchParentSize(),
-            text = "OH\nMY\nPING",
-            minLines = 3,
-            maxLines = 3,
-            fontSize = 40.sp,
-            textAlign = TextAlign.Start,
-            fontFamily = FontFamily(Font(R.font.roboto_condensed_bold_italic)),
-            fontWeight = FontWeight.Black,
-            fontStyle = FontStyle.Italic,
-            color = MaterialTheme.colorScheme.onSurface,
-            lineHeight = 40.sp
-          )
-        }
+              modifier = Modifier
+                  .padding(end = 4.dp)
+                  .fillMaxWidth(0.5f)
+          ) {
+              var clickCount by remember { mutableIntStateOf(0) }
+              Box(
+                  modifier = Modifier
+                      .clickable(
+                          interactionSource = remember { MutableInteractionSource() },
+                          indication = null,
+                          onClick = {
+                              clickCount++
+                              if (clickCount >= 5) {
+                                  onShowLogs()
+                                  clickCount = 0
+                              }
+                          }
+                      )
+                      .aspectRatio(1f)
+                      .clip(RoundedCornerShape(48.dp))
+                      .background(MaterialTheme.colorScheme.inversePrimary)
+                      .border(
+                          4.dp,
+                          MaterialTheme.colorScheme.outline,
+                          RoundedCornerShape(48.dp)
+                      )
+              )
+              Text(
+                  modifier = Modifier
+                      .padding(24.dp)
+                      .matchParentSize(),
+                  text = "OH\nMY\nPING",
+                  minLines = 3,
+                  maxLines = 3,
+                  fontSize = 40.sp,
+                  textAlign = TextAlign.Start,
+                  fontFamily = FontFamily(Font(R.font.roboto_condensed_bold_italic)),
+                  fontWeight = FontWeight.Black,
+                  fontStyle = FontStyle.Italic,
+                  color = MaterialTheme.colorScheme.onSurface,
+                  lineHeight = 40.sp
+              )
+          }
 
-        Column(
+          Column(
           modifier = Modifier
               .padding(start = 4.dp)
               .fillMaxWidth()

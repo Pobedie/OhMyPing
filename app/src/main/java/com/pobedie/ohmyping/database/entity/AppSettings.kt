@@ -11,4 +11,7 @@ data class AppSettings(
 
     @ColumnInfo(name = "is_listener_active", defaultValue = "1")
     val isListenerActive: Boolean = true,
+
+    @ColumnInfo(name = "is_logging_active", defaultValue = "0")
+    val isLoggingActive: Boolean = false,
 )

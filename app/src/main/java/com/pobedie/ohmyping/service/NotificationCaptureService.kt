@@ -24,6 +24,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
+import java.util.Date
 
 class NotificationCaptureService : NotificationListenerService() {
 
@@ -86,11 +88,13 @@ class NotificationCaptureService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         Log.d(TAG, "Notification listener connected")
+        writeLogToFile(application.applicationContext, "\n\n\n======LISTENER STARTED at ${Date(System.currentTimeMillis())}=====", true)
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         Log.d(TAG, "Notification listener disconnected")
+        writeLogToFile(application.applicationContext, "\n\n\n======LISTENER DISCONNECTED at ${Date(System.currentTimeMillis())}=====", true)
 
         // Try to reconnect
         requestRebind(ComponentName(this, NotificationCaptureService::class.java))
@@ -109,6 +113,10 @@ class NotificationCaptureService : NotificationListenerService() {
 
     private suspend fun processNotification(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
+
+        val appRules = repository.activeRules.first()
+        val serviceIsEnabled = repository.isListenerActive.first()
+        val loggingIsEnabled = repository.isLoggingActive.first()
 
         // Skip our own notifications
         if (packageName == this.packageName) {
@@ -129,17 +137,22 @@ class NotificationCaptureService : NotificationListenerService() {
         val nText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         val nSubText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
         val nBigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
+        val nConversation = extras.getCharSequence(Notification.EXTRA_CONVERSATION_TITLE)?.toString()
         val nChannelId = notification.channelId
         val notificationId = sbn.id
+        val nTime = Date(sbn.postTime)
 
-        val appRules = repository.activeRules.first()
-        val serviceIsEnabled = repository.isListenerActive.first()
+        val notificationLogData = "NOTIFICATION \n\tPostTime: $nTime,\n\tFrom: $nAppName, \n\tID: $nChannelId \n\tTitle: $nTitle, \n\tText: $nText" +
+                "\n\tBigText: $nBigText, \n\tSubText: $nSubText, \n\tConversation: $nConversation"
+        writeLogToFile(application.applicationContext, "\n\n====| ${Date(System.currentTimeMillis())}", loggingIsEnabled)
+        writeLogToFile(application.applicationContext, notificationLogData, loggingIsEnabled)
         val vibrator = applicationContext.getSystemService(Vibrator::class.java)
 
         if (serviceIsEnabled && appRules.any { it.packageName == packageName }) {
             val app = appRules.find { it.packageName == packageName } ?: return
             delay(1000) // to avoid overlapping with notification vibration
             if (nText != null && app.allChannels.triggerText.any { nText.contains(it) }) {
+                writeLogToFile(application.applicationContext, "ALL CHANNEL PINGED FOR > "+notificationLogData, loggingIsEnabled)
                 serviceScope.launch {
                     vibrator.vibrate(
                         VibrationEffect.createWaveform(
@@ -150,13 +163,16 @@ class NotificationCaptureService : NotificationListenerService() {
                     )
                 }
                 return
-            }
-
-            if (nText != null) {
+            } else {
                 app.namedChannels.forEach { _channel ->
                     if (nTitle!!.contains(_channel.name, true) ||
-                        nChannelId.contains(_channel.name)) {
-                        if (_channel.triggerText.any { nText.contains(it, true) } || _channel.triggerText.isEmpty()) {
+                        nChannelId.contains(_channel.name)
+                    ) {
+                        if (
+                            (nText != null && _channel.triggerText.any { nText.contains(it, true) }) ||
+                            _channel.triggerText.isEmpty()
+                        ) {
+                            writeLogToFile(application.applicationContext, "NAMED CHANNEL PINGED FOR > "+notificationLogData, loggingIsEnabled)
                             serviceScope.launch {
                                 vibrator.vibrate(
                                     VibrationEffect.createWaveform(
@@ -170,6 +186,37 @@ class NotificationCaptureService : NotificationListenerService() {
                     }
                 }
             }
+
+        }
+    }
+
+    fun writeLogToFile(context: Context, text: String, isLoggingEnabled: Boolean) {
+        if (!isLoggingEnabled) return
+
+        try {
+            val logFile = File(context.filesDir, "log.txt")
+            val maxSize = 2 * 1024 * 1024 // 2 MB in bytes
+
+            if (logFile.exists() && logFile.length() > maxSize) {
+                // Read the last half of the file (more efficient than keeping all)
+                val fileContent = logFile.readText()
+                val halfLength = fileContent.length / 2
+
+                val trimmedContent = if (halfLength > 0) {
+                    fileContent.substring(fileContent.length - halfLength)
+                } else {
+                    ""
+                }
+
+                context.openFileOutput("log.txt", Context.MODE_PRIVATE).use { outputStream ->
+                    outputStream.write(trimmedContent.toByteArray())
+                }
+            }
+                context.openFileOutput("log.txt", Context.MODE_APPEND).use { outputStream ->
+                    outputStream.write((text+"\n").toByteArray())
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

@@ -19,6 +19,11 @@ class AppRepository(
     private val appSettingsDao: AppSettingsDao,
 ) {
 
+    suspend fun databaseInitialization() =
+        withContext(Dispatchers.IO) {
+            appSettingsDao.initializeIfNeeded(false, false)
+        }
+
     suspend fun insertApplicationItem(appItem: ApplicationItem) =
         withContext(Dispatchers.IO) {
             val rule: NotificationAppRule = NotificationAppRule(
@@ -82,12 +87,17 @@ class AppRepository(
 
     suspend fun switchNotificationListener(isActive: Boolean) =
         withContext(Dispatchers.IO) {
-            // todo optimize settings db
-            appSettingsDao.initializeIfNeeded(isActive)
             appSettingsDao.updateListenerActive(isActive)
         }
 
-    val isListenerActive: Flow<Boolean> = appSettingsDao.getAppSettings()
+    suspend fun switchLogging(isActive: Boolean) =
+        withContext(Dispatchers.IO) {
+            appSettingsDao.updateLoggingActive(isActive)
+        }
+
+
+    val isListenerActive: Flow<Boolean> = appSettingsDao.listenerState()
+    val isLoggingActive: Flow<Boolean> = appSettingsDao.loggingState()
 
     val applicationItems: Flow<List<ApplicationItem>> = combine(
         notificationAppRuleDao.getAllRules(),

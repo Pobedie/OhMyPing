@@ -35,13 +35,16 @@ class MainViewModel(
 
     init {
         viewModelScope.launch {
+            repository.databaseInitialization()
             val userApps = getUserInstalledApps(application.applicationContext)
             val appItems = repository.applicationItems.first()
             val listenerIsEnabled = repository.isListenerActive.first()
+            val loggingEnabled = repository.isLoggingActive.first()
             _viewState.update { state ->
                 state.copy(
                     applicationItems = appItems,
                     notificationListenerEnabled = listenerIsEnabled,
+                    loggingEnabled = loggingEnabled,
                     userApps = userApps,
                     filteredUserApps = userApps,
                 )
@@ -53,8 +56,7 @@ class MainViewModel(
         if (_viewState.value.applicationItems.any{it.isEnabled}) {
             viewModelScope.launch { repository.switchNotificationListener(!_viewState.value.notificationListenerEnabled) }
             _viewState.update { state ->
-                state.copy(notificationListenerEnabled = !state.notificationListenerEnabled
-                )
+                state.copy(notificationListenerEnabled = !state.notificationListenerEnabled )
             }
         } else {
             Toast.makeText(
@@ -62,6 +64,13 @@ class MainViewModel(
                 application.applicationContext.getString(R.string.toast_must_have_app_enabled),
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    fun switchLogger() {
+        viewModelScope.launch { repository.switchLogging(!_viewState.value.loggingEnabled) }
+        _viewState.update { state ->
+            state.copy(loggingEnabled = !state.loggingEnabled)
         }
     }
 

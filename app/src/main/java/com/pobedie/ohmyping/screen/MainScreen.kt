@@ -7,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,13 +70,19 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -138,6 +143,7 @@ fun MainApp() {
 @Composable
 private fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
+    var showLogs by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     Column(
@@ -148,7 +154,8 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
     ) {
         TopBar(
             listenerEnabled = state.notificationListenerEnabled,
-            onClick = { viewModel.switchListener() }
+            onClick = { viewModel.switchListener() },
+            onShowLogs = {showLogs = true}
         )
 
         Box(
@@ -281,6 +288,16 @@ private fun MainScreen(viewModel: MainViewModel = viewModel()) {
             }
         }
     }
+
+    if (showLogs) {
+        LogPopup(
+            logContent =
+                LocalContext.current.openFileInput("log.txt").bufferedReader().use { it.readText() } ,
+            isLoggingEnabled = state.loggingEnabled,
+            onEnable = {viewModel.switchLogger()},
+            onDismiss = {showLogs = false}
+        )
+    }
 }
 
 @Composable
@@ -389,6 +406,101 @@ private fun openBatteryOptimizationSettings(context: Context) {
         val fallbackIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         fallbackIntent.data = Uri.parse("package:${context.packageName}")
         context.startActivity(fallbackIntent)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LogPopup(
+    logContent: String,
+    isLoggingEnabled: Boolean,
+    onEnable: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier .padding(vertical = 36.dp) ,
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Column(
+                modifier = Modifier.then(
+                    if (isLoggingEnabled) {
+                        Modifier.fillMaxSize()
+                    }   else {
+                        Modifier.fillMaxWidth()
+                    }
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Notification logs",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
+                    Text(
+                        text = "${logContent.count { it == '|' }} notifications",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Divider()
+
+                if (isLoggingEnabled) {
+                    Text(
+                        text = logContent,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp)
+                            .verticalScroll(scrollState),
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Divider()
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilledTonalButton(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        onClick = onEnable
+                    ) {
+                        Text(
+                            text = if (isLoggingEnabled) "Disable" else "Enable logging"
+                        )
+                    }
+
+                    if (logContent.isNotBlank() && isLoggingEnabled) {
+                        FilledTonalButton(
+                            modifier = Modifier
+                                .padding(horizontal = 24.dp, vertical = 16.dp),
+                            onClick = {
+                                scope.launch {
+                                    scrollState.scrollTo(Int.MAX_VALUE)
+                                }
+                            }
+                        ) {
+                            Text(
+                                text = "Scroll down"
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
