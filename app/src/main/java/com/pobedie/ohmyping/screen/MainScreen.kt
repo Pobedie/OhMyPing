@@ -1,5 +1,6 @@
 package com.pobedie.ohmyping.screen
 
+import android.Manifest
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -65,11 +66,12 @@ import com.pobedie.ohmyping.screen.components.InputField
 import com.pobedie.ohmyping.screen.components.TopBar
 import kotlinx.coroutines.launch
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -77,16 +79,19 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 import com.pobedie.ohmyping.service.NotificationCaptureService
 
 @Composable
@@ -99,6 +104,16 @@ fun MainApp() {
     val viewModel: MainViewModel = viewModel(
         factory = app.appContainer.provideMainViewModelFactory()
     )
+
+    var showNotificationRequest by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            showNotificationRequest = !hasNotificationPermission(context = appContext)
+        }
+    }
+
+    if (showNotificationRequest && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) RequestNotificationPermission()
 
     var showPermissionPopup by remember { mutableStateOf(false) }
     var showBatteryOptimizationPopup by remember { mutableStateOf(false) }
@@ -582,10 +597,21 @@ private fun AppSelector(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+fun hasNotificationPermission(context: Context): Boolean {
+    return ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.POST_NOTIFICATIONS
+    ) == PackageManager.PERMISSION_GRANTED
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun ByteArray.toBitmap(): ImageBitmap {
-    return this.let {
-        BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+private fun RequestNotificationPermission() {
+    val permissionState = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+    LaunchedEffect(Unit) {
+        permissionState.launchPermissionRequest()
     }
 }
 

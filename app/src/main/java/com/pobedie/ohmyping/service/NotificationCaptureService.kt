@@ -195,10 +195,9 @@ class NotificationCaptureService : NotificationListenerService() {
 
         try {
             val logFile = File(context.filesDir, "log.txt")
-            val maxSize = 2 * 1024 * 1024 // 2 MB in bytes
+            val maxSize = 1 * 1024 * 1024
 
             if (logFile.exists() && logFile.length() > maxSize) {
-                // Read the last half of the file (more efficient than keeping all)
                 val fileContent = logFile.readText()
                 val halfLength = fileContent.length / 2
 
@@ -269,6 +268,7 @@ class NotificationCaptureService : NotificationListenerService() {
             .setOngoing(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setShowWhen(false)
             .build()
     }

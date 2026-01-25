@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -52,6 +54,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.material3)
     implementation(libs.androidx.compose.material.icons.core)
+
+    // permissions
+    implementation(libs.accompanist.permissions)
 
     // database
     implementation(libs.androidx.room.runtime)
