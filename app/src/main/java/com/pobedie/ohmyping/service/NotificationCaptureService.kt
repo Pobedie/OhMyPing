@@ -7,7 +7,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.Settings
@@ -33,16 +32,10 @@ class NotificationCaptureService : NotificationListenerService() {
 
     companion object {
         private const val TAG = "NotificationCaptureService"
-        private const val CHANNEL_ID = "notification_listener"
-        private const val NOTIFICATION_ID = 6969420
 
         fun startService(context: Context) {
             val intent = Intent(context, NotificationCaptureService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
         }
 
         fun isNotificationAccessGranted(context: Context, packageName: String): Boolean {
@@ -71,12 +64,11 @@ class NotificationCaptureService : NotificationListenerService() {
         val appContainer = (application as MainApp).appContainer
         repository = appContainer.repository
 
-        createNotificationChannel()
         Log.d(TAG, "NotificationCaptureService created")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(NOTIFICATION_ID, createNotification())
+        super.onStartCommand(intent, flags, startId)
         return START_STICKY // Restart if killed by system
     }
 
@@ -87,6 +79,7 @@ class NotificationCaptureService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        startForegroundService()
         Log.d(TAG, "Notification listener connected")
         writeLogToFile(application.applicationContext, "\n\n\n======LISTENER STARTED at ${Date(System.currentTimeMillis())}=====", true)
     }
@@ -244,32 +237,20 @@ class NotificationCaptureService : NotificationListenerService() {
         }
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Notification Listener Service",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Service that captures notifications"
-                setShowBadge(false)
-            }
+    private fun startForegroundService() {
+        val channelId = "notif_listener_service"
+        val channel = NotificationChannel(channelId, "Service Alive", NotificationManager.IMPORTANCE_LOW)
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
 
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun createNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID) // Use same CHANNEL_ID
-            .setContentTitle("Notification Capture Service")
-            .setContentText("Notification Listener")
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Monitoring Notifications")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setOngoing(true)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setShowWhen(false)
             .build()
+
+        startForeground(6969420, notification)
     }
+
 }

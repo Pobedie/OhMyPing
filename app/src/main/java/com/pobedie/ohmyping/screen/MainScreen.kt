@@ -150,7 +150,10 @@ fun MainApp() {
     }
 
     if (showBatteryOptimizationPopup && !showPermissionPopup) {
-        BatteryOptimizationPopup(onClick = {openBatteryOptimizationSettings(appContext)})
+        BatteryOptimizationPopup(onClick = {
+            openBatteryOptimizationSettings(appContext)
+            showBatteryOptimizationPopup = false
+        })
     }
 }
 
@@ -384,9 +387,8 @@ private fun openBatteryOptimizationSettings(context: Context) {
     when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
             // Standard Android approach
-            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            intent.data = Uri.fromParts("package", context.packageName, null)
-            intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
+            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            intent.data = Uri.parse("package:${context.packageName}")
         }
         Build.MANUFACTURER.equals("xiaomi", ignoreCase = true) -> {
             // Xiaomi devices
