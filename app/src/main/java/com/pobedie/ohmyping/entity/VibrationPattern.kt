@@ -12,10 +12,10 @@ enum class VibrationPattern(
     BeeHive(
         patternName = "Bee hive",
         timings = longArrayOf(
-            50, 60,
-            50, 60,
-            50, 60,
-            50, 60,
+            50, 80,
+            50, 80,
+            50, 80,
+            50, 80,
         ),
         amplitudes = intArrayOf(
             255, 0,
@@ -92,7 +92,48 @@ enum class VibrationPattern(
     QuickTap(
         patternName = "Quick Tap",
         timings = longArrayOf(50),
-        amplitudes = intArrayOf(250)
-    )
+        amplitudes = intArrayOf(255)
+    ),
+    LongTap(
+        patternName = "Long Tap",
+        timings = longArrayOf(150),
+        amplitudes = intArrayOf(255)
+    ),
+    TapTap(
+        patternName = "Tap Tap",
+        timings = longArrayOf(60, 90, 60),
+        amplitudes = intArrayOf(255, 0, 255)
+    ),
+    Minigun(
+        patternName = "Minigun",
+        timings = longArrayOf(
+            0, 15,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10,
+            55, 10
+        ),
+        amplitudes = intArrayOf(
+            0, 50,
+            0, 90,
+            0, 120,
+            0, 180,
+            0, 230,
+            0, 255,
+            0, 255,
+            0, 255,
+            0, 255,
+            0, 180,
+            0, 120,
+            0, 80
+        )
+    ),
 }
 
