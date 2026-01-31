@@ -217,7 +217,7 @@ private fun AllChannels(
         Modifier.padding(start = 16.dp)
     ) {
         Text(
-            text = stringResource(R.string.trigger_on_text),
+            text = stringResource(R.string.trigger_on_text_plural),
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.height(8.dp))

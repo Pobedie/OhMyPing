@@ -6,11 +6,12 @@
     <string name="battery_optimization_request">Чтобы это приложение работало стабильно следует для него отключить оптимизацию энергопотребления</string>
     <string name="open_battery_settings">Настройки приложения</string>
     <string name="add_channel">Добавить канал</string>
-    <string name="channel">Канал:</string>
+    <string name="channel">Сообщение от:</string>
     <string name="channel_placeholder">Название чата или канала</string>
     <string name="delete_channel">Удалить канал</string>
     <string name="all_notifications">Все уведомления:</string>
-    <string name="trigger_on_text">Триггерные слова</string>
+    <string name="trigger_on_text">Которое содержит:</string>
+    <string name="trigger_on_text_plural">Которые содержат:</string>
     <string name="trigger_text_placeholder">Текст для активации пинга</string>
     <string name="vibration_pattern">Стиль вибрации</string>
     <string name="keep_trigger_empty_lable">Оставь список триггерных слов пустым чтобы получать пинг от всех уведомлений с этого канала</string>

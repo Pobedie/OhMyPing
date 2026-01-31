@@ -12,11 +12,12 @@
     <string name="open_battery_settings">Open app\'s settings</string>
 
     <string name="add_channel">Add channel</string>
-    <string name="channel">Channel:</string>
+    <string name="channel">Message from:</string>
     <string name="channel_placeholder">Chat or channel name</string>
     <string name="delete_channel">Delete channel</string>
     <string name="all_notifications">All notifications:</string>
-    <string name="trigger_on_text">Trigger words</string>
+    <string name="trigger_on_text">That contains:</string>
+    <string name="trigger_on_text_plural">That contain:</string>
     <string name="trigger_text_placeholder">Text to trigger ping</string>
     <string name="vibration_pattern">Vibration pattern</string>
     <string name="keep_trigger_empty_lable">Keep trigger words list empty to get ping on all notifications from this channel</string>
