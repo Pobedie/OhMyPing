@@ -134,7 +134,12 @@ class MainViewModel(
     }
 
     fun changeAppChannelName(app: ApplicationItem, channel: ApplicationChannel.NamedChannel, name: String) {
-        viewModelScope.launch { repository.updateChannelItem(app, channel) }
+        viewModelScope.launch {
+            repository.updateChannelItem(
+                app,
+                channel.copy(name = name)
+            )
+        }
         val newChannel = channel.copy(name = name)
         _viewState.update { state ->
             state.copy(applicationItems = state.applicationItems.map { _app ->
